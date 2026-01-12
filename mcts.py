@@ -117,11 +117,6 @@ class MCTS:
                         best_score = score
                         best_move = move
                 
-<<<<<<< HEAD
-                # Evaluate the position
-                # Value is from the perspective of the side to move at 'node'
-                v = self.evaluator(node.board)
-=======
                 if best_move is None: break
                 node = node.children[best_move]
                 sim_board.push(best_move)
@@ -141,7 +136,6 @@ class MCTS:
                     p = (priorities[j] + 1) / total_p
                     node.children[move] = MCTSNode(move=move, parent=node, prior=p)
                 node.is_expanded = True
->>>>>>> 0548ecf (First successful game played against the bot)
             else:
                 if sim_board.is_game_over():
                     res = sim_board.result()
@@ -157,63 +151,6 @@ class MCTS:
                 node.w += v
                 v = -v
                 node = node.parent
-<<<<<<< HEAD
-                
-        # Return best move by visit count
-        if not root.children: return None
-        return max(root.children.items(), key=lambda x: x[1].n)[0]
-    
-    def search_ranked(self, board, iterations=400):
-        """Search and return all moves ranked by visit count."""
-        root = MCTSNode(board.copy())
-        
-        for _ in range(iterations):
-            node = root
-            
-            # Selection
-            while node.children:
-                best_score = -float('inf')
-                best_child = None
-                
-                log_n = math.log(max(1, node.n))
-                for child in node.children.values():
-                    score = (-child.value) + 1.4 * math.sqrt(log_n / (1 + child.n))
-                    if score > best_score:
-                        best_score = score
-                        best_child = child
-                node = best_child
-            
-            # Expansion & Evaluation
-            if not node.board.is_game_over():
-                for move in node.board.legal_moves:
-                    new_board = node.board.copy()
-                    new_board.push(move)
-                    node.children[move] = MCTSNode(new_board, parent=node, move=move)
-                
-                v = self.evaluator(node.board)
-            else:
-                res = node.board.result()
-                if res == "1-0":
-                    v = 1.0 if node.board.turn == chess.WHITE else -1.0
-                elif res == "0-1":
-                    v = -1.0 if node.board.turn == chess.WHITE else 1.0
-                else:
-                    v = 0.0
-            
-            # Backpropagation
-            while node:
-                node.n += 1
-                node.w += v
-                v = -v
-                node = node.parent
-        
-        # Return all moves ranked by visit count
-        if not root.children:
-            return []
-        
-        ranked = sorted(root.children.items(), key=lambda x: x[1].n, reverse=True)
-        return [(move, child.n) for move, child in ranked]
-=======
                 if path:
                     sim_board.pop()
                     path.pop()
@@ -225,4 +162,3 @@ class MCTS:
         """Legacy search method returning best move."""
         ranked = self.search_ranked(board, iterations)
         return ranked[0][0] if ranked else None
->>>>>>> 0548ecf (First successful game played against the bot)
