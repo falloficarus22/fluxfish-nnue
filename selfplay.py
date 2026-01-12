@@ -5,7 +5,7 @@ import time
 
 def self_play():
     print("Initializing Engine Brain...")
-    brain = Evaluator("nn-1c0000000000.nnue")
+    brain = Evaluator("fluxfish.nnue")
     searcher = MCTS(brain)
     
     board = chess.Board()
