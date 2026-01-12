@@ -1,2 +1,5 @@
 __pycache__/
-*.nnue
+.nnue
+.txt
+komodo.bin
+config.yml
