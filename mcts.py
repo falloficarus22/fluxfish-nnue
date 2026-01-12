@@ -51,7 +51,7 @@ class MCTS:
                 
                 # Evaluate the position
                 # Value is from the perspective of the side to move at 'node'
-                v = self.evaluator.evaluate(node.board)
+                v = self.evaluator(node.board)
             else:
                 # Terminal
                 res = node.board.result()
@@ -72,3 +72,54 @@ class MCTS:
         # Return best move by visit count
         if not root.children: return None
         return max(root.children.items(), key=lambda x: x[1].n)[0]
+    
+    def search_ranked(self, board, iterations=400):
+        """Search and return all moves ranked by visit count."""
+        root = MCTSNode(board.copy())
+        
+        for _ in range(iterations):
+            node = root
+            
+            # Selection
+            while node.children:
+                best_score = -float('inf')
+                best_child = None
+                
+                log_n = math.log(max(1, node.n))
+                for child in node.children.values():
+                    score = (-child.value) + 1.4 * math.sqrt(log_n / (1 + child.n))
+                    if score > best_score:
+                        best_score = score
+                        best_child = child
+                node = best_child
+            
+            # Expansion & Evaluation
+            if not node.board.is_game_over():
+                for move in node.board.legal_moves:
+                    new_board = node.board.copy()
+                    new_board.push(move)
+                    node.children[move] = MCTSNode(new_board, parent=node, move=move)
+                
+                v = self.evaluator(node.board)
+            else:
+                res = node.board.result()
+                if res == "1-0":
+                    v = 1.0 if node.board.turn == chess.WHITE else -1.0
+                elif res == "0-1":
+                    v = -1.0 if node.board.turn == chess.WHITE else 1.0
+                else:
+                    v = 0.0
+            
+            # Backpropagation
+            while node:
+                node.n += 1
+                node.w += v
+                v = -v
+                node = node.parent
+        
+        # Return all moves ranked by visit count
+        if not root.children:
+            return []
+        
+        ranked = sorted(root.children.items(), key=lambda x: x[1].n, reverse=True)
+        return [(move, child.n) for move, child in ranked]
