@@ -15,7 +15,7 @@ from nnue_model import FluxFishNNUE, NUM_FEATURES
 STOCKFISH_PATH = "/usr/games/stockfish"  # Update if needed
 BATCH_SIZE = 256
 LEARNING_RATE = 0.001
-NUM_POSITIONS = 150000  # Total training positions
+NUM_POSITIONS = 500000  # Total training positions
 EPOCHS = 4
 NUM_WORKERS = max(1, cpu_count() - 1)
 SAVE_PATH = "fluxfish.nnue"
@@ -258,7 +258,7 @@ def main():
     print("FluxFish NNUE Training - CPU Optimized")
     print("=" * 60)
     
-    dataset_file = "training_data.txt"
+    dataset_file = "master_data.txt"
     
     # Step 1: Generate or load training data
     if os.path.exists(dataset_file):
