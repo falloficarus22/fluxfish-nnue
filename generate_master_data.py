@@ -10,7 +10,7 @@ from nnue_model import FluxFishNNUE
 
 # ============ CONFIGURATION ============
 STOCKFISH_PATH = "/usr/games/stockfish"
-OUTPUT_FILE = "master_data_100k.txt"
+OUTPUT_FILE = "master_data.txt"
 NUM_POSITIONS = 500000 # Targeted number of high-quality positions
 SF_DEPTH = 12
 NUM_WORKERS = max(1, cpu_count() - 1)
