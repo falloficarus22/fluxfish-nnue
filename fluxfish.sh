@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /root/fluxfish-nnue
-exec /root/miniconda3/envs/icarus_env/bin/python3 uci.py
+exec python3 uci_cpp.py

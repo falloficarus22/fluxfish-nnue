@@ -1,0 +1,370 @@
+2026-01-14 09:31:11,897 - INFO - Starting iteration 0
+2026-01-14 09:37:29,960 - INFO - Starting iteration 0
+2026-01-14 09:38:30,925 - INFO - Starting iteration 0
+2026-01-14 09:44:33,340 - INFO - Iteration 0 completed: {'iteration': 0, 'loss': 0.0, 'epsilon': 0.24875, 'buffer_size': 632, 'learning_rate': 0.001}
+2026-01-14 09:44:33,341 - INFO - Starting iteration 1
+2026-01-14 09:48:10,800 - INFO - Starting iteration 0
+2026-01-14 09:48:17,550 - INFO - Iteration 0 completed: {'iteration': 0, 'loss': 0.0, 'epsilon': 0.24750625, 'buffer_size': 1542, 'learning_rate': 0.001}
+2026-01-14 09:48:17,550 - INFO - Starting iteration 1
+2026-01-14 09:48:25,196 - INFO - Iteration 1 completed: {'iteration': 1, 'loss': 0.0, 'epsilon': 0.24626871875, 'buffer_size': 2542, 'learning_rate': 0.001}
+2026-01-14 09:48:25,196 - INFO - Starting iteration 2
+2026-01-14 09:51:51,764 - INFO - Starting iteration 0
+2026-01-14 09:52:03,568 - INFO - Iteration 0 completed: {'iteration': 0, 'loss': 0.05968737881630659, 'epsilon': 0.24875, 'buffer_size': 2486, 'learning_rate': 0.001}
+2026-01-14 09:52:03,569 - INFO - Starting iteration 1
+2026-01-14 09:52:14,653 - INFO - Iteration 1 completed: {'iteration': 1, 'loss': 0.03977099750190973, 'epsilon': 0.24750625, 'buffer_size': 3246, 'learning_rate': 0.001}
+2026-01-14 09:52:14,654 - INFO - Starting iteration 2
+2026-01-14 09:52:26,559 - INFO - Iteration 2 completed: {'iteration': 2, 'loss': 0.01548404605127871, 'epsilon': 0.24626871875, 'buffer_size': 4246, 'learning_rate': 0.001}
+2026-01-14 09:52:26,560 - INFO - Starting iteration 3
+2026-01-14 09:52:36,479 - INFO - Iteration 3 completed: {'iteration': 3, 'loss': 0.01529145953245461, 'epsilon': 0.24503737515625001, 'buffer_size': 4908, 'learning_rate': 0.001}
+2026-01-14 09:52:36,480 - INFO - Starting iteration 4
+2026-01-14 09:52:49,114 - INFO - Iteration 4 completed: {'iteration': 4, 'loss': 0.020211057318374512, 'epsilon': 0.24381218828046877, 'buffer_size': 5908, 'learning_rate': 0.001}
+2026-01-14 09:52:49,116 - INFO - Starting iteration 5
+2026-01-14 09:53:00,551 - INFO - Iteration 5 completed: {'iteration': 5, 'loss': 0.013021486112847924, 'epsilon': 0.24259312733906643, 'buffer_size': 6908, 'learning_rate': 0.001}
+2026-01-14 09:53:00,552 - INFO - Starting iteration 6
+2026-01-14 09:53:14,442 - INFO - Iteration 6 completed: {'iteration': 6, 'loss': 0.010250699752941728, 'epsilon': 0.2413801617023711, 'buffer_size': 7908, 'learning_rate': 0.001}
+2026-01-14 09:53:14,444 - INFO - Starting iteration 7
+2026-01-14 09:53:29,860 - INFO - Iteration 7 completed: {'iteration': 7, 'loss': 0.007843209011480213, 'epsilon': 0.24017326089385924, 'buffer_size': 8908, 'learning_rate': 0.001}
+2026-01-14 09:53:29,863 - INFO - Starting iteration 8
+2026-01-14 09:53:44,852 - INFO - Iteration 8 completed: {'iteration': 8, 'loss': 0.013031963282264768, 'epsilon': 0.23897239458938993, 'buffer_size': 9853, 'learning_rate': 0.001}
+2026-01-14 09:53:44,853 - INFO - Starting iteration 9
+2026-01-14 09:53:57,265 - INFO - Iteration 9 completed: {'iteration': 9, 'loss': 0.010842081648297608, 'epsilon': 0.23777753261644297, 'buffer_size': 10853, 'learning_rate': 0.001}
+2026-01-14 10:11:38,579 - INFO - Starting iteration 10
+2026-01-14 10:11:50,454 - INFO - Iteration 10 completed: {'iteration': 10, 'loss': 0.011470918543636799, 'epsilon': 0.23658864495336074, 'buffer_size': 11843, 'learning_rate': 0.001}
+2026-01-14 10:11:50,454 - INFO - Starting iteration 11
+2026-01-14 10:12:02,744 - INFO - Iteration 11 completed: {'iteration': 11, 'loss': 0.008498178515583276, 'epsilon': 0.23540570172859393, 'buffer_size': 12843, 'learning_rate': 0.001}
+2026-01-14 10:12:02,745 - INFO - Starting iteration 12
+2026-01-14 10:12:14,102 - INFO - Iteration 12 completed: {'iteration': 12, 'loss': 0.007991405297070741, 'epsilon': 0.23422867321995097, 'buffer_size': 13843, 'learning_rate': 0.001}
+2026-01-14 10:12:14,106 - INFO - Starting iteration 13
+2026-01-14 10:12:26,559 - INFO - Iteration 13 completed: {'iteration': 13, 'loss': 0.006950733321718872, 'epsilon': 0.23305752985385123, 'buffer_size': 14843, 'learning_rate': 0.001}
+2026-01-14 10:12:26,560 - INFO - Starting iteration 14
+2026-01-14 10:12:38,048 - INFO - Iteration 14 completed: {'iteration': 14, 'loss': 0.007747114240191876, 'epsilon': 0.23189224220458196, 'buffer_size': 15687, 'learning_rate': 0.001}
+2026-01-14 10:12:38,049 - INFO - Starting iteration 15
+2026-01-14 10:12:49,788 - INFO - Iteration 15 completed: {'iteration': 15, 'loss': 0.006451812840532511, 'epsilon': 0.23073278099355904, 'buffer_size': 16687, 'learning_rate': 0.001}
+2026-01-14 10:12:49,789 - INFO - Starting iteration 16
+2026-01-14 10:13:01,791 - INFO - Iteration 16 completed: {'iteration': 16, 'loss': 0.008572511235252024, 'epsilon': 0.22957911708859124, 'buffer_size': 17648, 'learning_rate': 0.001}
+2026-01-14 10:13:01,792 - INFO - Starting iteration 17
+2026-01-14 10:13:14,489 - INFO - Iteration 17 completed: {'iteration': 17, 'loss': 0.013498523668386043, 'epsilon': 0.2284312215031483, 'buffer_size': 18437, 'learning_rate': 0.001}
+2026-01-14 10:13:14,491 - INFO - Starting iteration 18
+2026-01-14 10:13:28,186 - INFO - Iteration 18 completed: {'iteration': 18, 'loss': 0.010649490123614668, 'epsilon': 0.22728906539563254, 'buffer_size': 19271, 'learning_rate': 0.001}
+2026-01-14 10:13:28,188 - INFO - Starting iteration 19
+2026-01-14 10:13:39,711 - INFO - Iteration 19 completed: {'iteration': 19, 'loss': 0.014491285220719873, 'epsilon': 0.2261526200686544, 'buffer_size': 20032, 'learning_rate': 0.001}
+2026-01-14 10:16:46,119 - INFO - Starting iteration 20
+2026-01-14 10:16:57,780 - INFO - Iteration 20 completed: {'iteration': 20, 'loss': 0.016871573356911543, 'epsilon': 0.22502185696831112, 'buffer_size': 20830, 'learning_rate': 0.001}
+2026-01-14 10:16:57,781 - INFO - Starting iteration 21
+2026-01-14 10:17:08,439 - INFO - Iteration 21 completed: {'iteration': 21, 'loss': 0.01408623312599957, 'epsilon': 0.22389674768346957, 'buffer_size': 21741, 'learning_rate': 0.001}
+2026-01-14 10:17:08,442 - INFO - Starting iteration 22
+2026-01-14 10:17:20,807 - INFO - Iteration 22 completed: {'iteration': 22, 'loss': 0.01165429230313748, 'epsilon': 0.2227772639450522, 'buffer_size': 22741, 'learning_rate': 0.001}
+2026-01-14 10:17:20,808 - INFO - Starting iteration 23
+2026-01-14 10:17:32,435 - INFO - Iteration 23 completed: {'iteration': 23, 'loss': 0.011918731522746384, 'epsilon': 0.22166337762532695, 'buffer_size': 23469, 'learning_rate': 0.001}
+2026-01-14 10:17:32,435 - INFO - Starting iteration 24
+2026-01-14 10:17:44,865 - INFO - Iteration 24 completed: {'iteration': 24, 'loss': 0.00869514609221369, 'epsilon': 0.22055506073720033, 'buffer_size': 24469, 'learning_rate': 0.001}
+2026-01-14 10:17:44,867 - INFO - Starting iteration 25
+2026-01-14 10:17:56,325 - INFO - Iteration 25 completed: {'iteration': 25, 'loss': 0.010503964498639107, 'epsilon': 0.21945228543351433, 'buffer_size': 25413, 'learning_rate': 0.001}
+2026-01-14 10:17:56,326 - INFO - Starting iteration 26
+2026-01-14 10:18:08,686 - INFO - Iteration 26 completed: {'iteration': 26, 'loss': 0.010023750318214297, 'epsilon': 0.21835502400634677, 'buffer_size': 26413, 'learning_rate': 0.001}
+2026-01-14 10:18:08,687 - INFO - Starting iteration 27
+2026-01-14 10:18:20,122 - INFO - Iteration 27 completed: {'iteration': 27, 'loss': 0.00921408892609179, 'epsilon': 0.21726324888631504, 'buffer_size': 27276, 'learning_rate': 0.001}
+2026-01-14 10:18:20,124 - INFO - Starting iteration 28
+2026-01-14 10:18:32,469 - INFO - Iteration 28 completed: {'iteration': 28, 'loss': 0.008937309961766005, 'epsilon': 0.21617693264188345, 'buffer_size': 28276, 'learning_rate': 0.001}
+2026-01-14 10:18:32,470 - INFO - Starting iteration 29
+2026-01-14 10:18:43,237 - INFO - Iteration 29 completed: {'iteration': 29, 'loss': 0.007656163861975074, 'epsilon': 0.21509604797867404, 'buffer_size': 29220, 'learning_rate': 0.001}
+2026-01-14 10:19:52,290 - INFO - Starting iteration 30
+2026-01-14 10:20:05,412 - INFO - Iteration 30 completed: {'iteration': 30, 'loss': 0.007243596622720361, 'epsilon': 0.21402056773878067, 'buffer_size': 30164, 'learning_rate': 0.001}
+2026-01-14 10:20:05,412 - INFO - Starting iteration 31
+2026-01-14 10:20:17,401 - INFO - Iteration 31 completed: {'iteration': 31, 'loss': 0.007947508757933975, 'epsilon': 0.21295046490008676, 'buffer_size': 31164, 'learning_rate': 0.001}
+2026-01-14 10:20:17,404 - INFO - Starting iteration 32
+2026-01-14 10:20:29,951 - INFO - Iteration 32 completed: {'iteration': 32, 'loss': 0.009425229835323989, 'epsilon': 0.21188571257558633, 'buffer_size': 32073, 'learning_rate': 0.001}
+2026-01-14 10:20:29,952 - INFO - Starting iteration 33
+2026-01-14 10:20:44,221 - INFO - Iteration 33 completed: {'iteration': 33, 'loss': 0.009536659833975137, 'epsilon': 0.2108262840127084, 'buffer_size': 33073, 'learning_rate': 0.001}
+2026-01-14 10:20:44,222 - INFO - Starting iteration 34
+2026-01-14 10:20:55,588 - INFO - Iteration 34 completed: {'iteration': 34, 'loss': 0.008277180045843125, 'epsilon': 0.20977215259264484, 'buffer_size': 34073, 'learning_rate': 0.001}
+2026-01-14 10:20:55,590 - INFO - Starting iteration 35
+2026-01-14 10:21:08,799 - INFO - Iteration 35 completed: {'iteration': 35, 'loss': 0.009447728400118649, 'epsilon': 0.2087232918296816, 'buffer_size': 34964, 'learning_rate': 0.001}
+2026-01-14 10:21:08,800 - INFO - Starting iteration 36
+2026-01-14 10:21:20,154 - INFO - Iteration 36 completed: {'iteration': 36, 'loss': 0.009862006409093738, 'epsilon': 0.2076796753705332, 'buffer_size': 35964, 'learning_rate': 0.001}
+2026-01-14 10:21:20,155 - INFO - Starting iteration 37
+2026-01-14 10:21:32,710 - INFO - Iteration 37 completed: {'iteration': 37, 'loss': 0.008083288348279892, 'epsilon': 0.20664127699368054, 'buffer_size': 36964, 'learning_rate': 0.001}
+2026-01-14 10:21:32,711 - INFO - Starting iteration 38
+2026-01-14 10:21:45,139 - INFO - Iteration 38 completed: {'iteration': 38, 'loss': 0.006979585508815944, 'epsilon': 0.20560807060871214, 'buffer_size': 37964, 'learning_rate': 0.001}
+2026-01-14 10:21:45,140 - INFO - Starting iteration 39
+2026-01-14 10:21:56,768 - INFO - Iteration 39 completed: {'iteration': 39, 'loss': 0.007067853957414627, 'epsilon': 0.20458003025566857, 'buffer_size': 38964, 'learning_rate': 0.001}
+2026-01-14 10:21:56,769 - INFO - Starting iteration 40
+2026-01-14 10:22:13,603 - INFO - Iteration 40 completed: {'iteration': 40, 'loss': 0.00802012262865901, 'epsilon': 0.20355713010439022, 'buffer_size': 39964, 'learning_rate': 0.001}
+2026-01-14 10:22:13,604 - INFO - Starting iteration 41
+2026-01-14 10:22:28,677 - INFO - Iteration 41 completed: {'iteration': 41, 'loss': 0.007236046623438597, 'epsilon': 0.20253934445386826, 'buffer_size': 40964, 'learning_rate': 0.001}
+2026-01-14 10:22:28,678 - INFO - Starting iteration 42
+2026-01-14 10:22:44,574 - INFO - Iteration 42 completed: {'iteration': 42, 'loss': 0.00852457967121154, 'epsilon': 0.20152664773159892, 'buffer_size': 41831, 'learning_rate': 0.001}
+2026-01-14 10:22:44,576 - INFO - Starting iteration 43
+2026-01-14 10:22:55,363 - INFO - Iteration 43 completed: {'iteration': 43, 'loss': 0.008495305944234133, 'epsilon': 0.20051901449294093, 'buffer_size': 42731, 'learning_rate': 0.001}
+2026-01-14 10:22:55,364 - INFO - Starting iteration 44
+2026-01-14 10:23:06,519 - INFO - Iteration 44 completed: {'iteration': 44, 'loss': 0.010770412022247912, 'epsilon': 0.19951641942047624, 'buffer_size': 43574, 'learning_rate': 0.001}
+2026-01-14 10:23:06,520 - INFO - Starting iteration 45
+2026-01-14 10:23:22,864 - INFO - Iteration 45 completed: {'iteration': 45, 'loss': 0.008671005652286113, 'epsilon': 0.19851883732337386, 'buffer_size': 44543, 'learning_rate': 0.001}
+2026-01-14 10:23:22,865 - INFO - Starting iteration 46
+2026-01-14 10:23:37,769 - INFO - Iteration 46 completed: {'iteration': 46, 'loss': 0.008442561887204648, 'epsilon': 0.19752624313675698, 'buffer_size': 45436, 'learning_rate': 0.001}
+2026-01-14 10:23:37,775 - INFO - Starting iteration 47
+2026-01-14 10:23:52,251 - INFO - Iteration 47 completed: {'iteration': 47, 'loss': 0.008721900801174343, 'epsilon': 0.1965386119210732, 'buffer_size': 46392, 'learning_rate': 0.001}
+2026-01-14 10:23:52,253 - INFO - Starting iteration 48
+2026-01-14 10:24:03,061 - INFO - Iteration 48 completed: {'iteration': 48, 'loss': 0.010035162069834768, 'epsilon': 0.19555591886146784, 'buffer_size': 47196, 'learning_rate': 0.001}
+2026-01-14 10:24:03,062 - INFO - Starting iteration 49
+2026-01-14 10:24:15,345 - INFO - Iteration 49 completed: {'iteration': 49, 'loss': 0.007468031579628586, 'epsilon': 0.1945781392671605, 'buffer_size': 48196, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:32:10,790 - INFO - Starting iteration 50
+2026-01-14 10:32:36,096 - INFO - Iteration 50 completed: {'iteration': 50, 'loss': 0.011654775496572255, 'epsilon': 0.1936052485708247, 'buffer_size': 49942, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:32:36,097 - INFO - Starting iteration 51
+2026-01-14 10:32:55,843 - INFO - Iteration 51 completed: {'iteration': 51, 'loss': 0.009460433945059776, 'epsilon': 0.19263722232797056, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:32:55,844 - INFO - Starting iteration 52
+2026-01-14 10:33:13,721 - INFO - Iteration 52 completed: {'iteration': 52, 'loss': 0.012382450303994118, 'epsilon': 0.19167403621633072, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:33:13,723 - INFO - Starting iteration 53
+2026-01-14 10:33:33,247 - INFO - Iteration 53 completed: {'iteration': 53, 'loss': 0.011029261397197843, 'epsilon': 0.19071566603524906, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:33:33,248 - INFO - Starting iteration 54
+2026-01-14 10:33:52,330 - INFO - Iteration 54 completed: {'iteration': 54, 'loss': 0.011298728408291936, 'epsilon': 0.1897620877050728, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:33:52,332 - INFO - Starting iteration 55
+2026-01-14 10:34:12,901 - INFO - Iteration 55 completed: {'iteration': 55, 'loss': 0.012929580337367953, 'epsilon': 0.18881327726654742, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:34:12,902 - INFO - Starting iteration 56
+2026-01-14 10:34:31,913 - INFO - Iteration 56 completed: {'iteration': 56, 'loss': 0.01300246687605977, 'epsilon': 0.1878692108802147, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:34:31,915 - INFO - Starting iteration 57
+2026-01-14 10:34:55,423 - INFO - Iteration 57 completed: {'iteration': 57, 'loss': 0.011040675477124751, 'epsilon': 0.1869298648258136, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:34:55,425 - INFO - Starting iteration 58
+2026-01-14 10:35:16,183 - INFO - Iteration 58 completed: {'iteration': 58, 'loss': 0.012884428817778827, 'epsilon': 0.18599521550168455, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:35:16,184 - INFO - Starting iteration 59
+2026-01-14 10:35:35,394 - INFO - Iteration 59 completed: {'iteration': 59, 'loss': 0.01027161329984665, 'epsilon': 0.18506523942417613, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:35:35,395 - INFO - Starting iteration 60
+2026-01-14 10:35:58,609 - INFO - Iteration 60 completed: {'iteration': 60, 'loss': 0.009853377798572182, 'epsilon': 0.18413991322705525, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:35:58,610 - INFO - Starting iteration 61
+2026-01-14 10:36:18,944 - INFO - Iteration 61 completed: {'iteration': 61, 'loss': 0.010171940620057284, 'epsilon': 0.18321921366091998, 'buffer_size': 50000, 'learning_rate': 0.0009000000000000001}
+2026-01-14 10:36:18,945 - INFO - Starting iteration 62
+2026-01-14 10:36:39,287 - INFO - Iteration 62 completed: {'iteration': 62, 'loss': 0.014334634155966341, 'epsilon': 0.1823031175926154, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:36:39,288 - INFO - Starting iteration 63
+2026-01-14 10:37:02,350 - INFO - Iteration 63 completed: {'iteration': 63, 'loss': 0.012554594827815891, 'epsilon': 0.18139160200465232, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:37:02,352 - INFO - Starting iteration 64
+2026-01-14 10:37:25,614 - INFO - Iteration 64 completed: {'iteration': 64, 'loss': 0.015703166322782635, 'epsilon': 0.18048464399462905, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:37:25,615 - INFO - Starting iteration 65
+2026-01-14 10:37:58,111 - INFO - Iteration 65 completed: {'iteration': 65, 'loss': 0.01533658297266811, 'epsilon': 0.1795822207746559, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:37:58,112 - INFO - Starting iteration 66
+2026-01-14 10:38:23,201 - INFO - Iteration 66 completed: {'iteration': 66, 'loss': 0.012270707916468383, 'epsilon': 0.17868430967078264, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:38:23,205 - INFO - Starting iteration 67
+2026-01-14 10:38:47,841 - INFO - Iteration 67 completed: {'iteration': 67, 'loss': 0.012705485126934944, 'epsilon': 0.17779088812242871, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:38:47,842 - INFO - Starting iteration 68
+2026-01-14 10:39:08,585 - INFO - Iteration 68 completed: {'iteration': 68, 'loss': 0.014215204818174242, 'epsilon': 0.17690193368181656, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:39:08,588 - INFO - Starting iteration 69
+2026-01-14 10:39:31,626 - INFO - Iteration 69 completed: {'iteration': 69, 'loss': 0.013067545602098107, 'epsilon': 0.17601742401340748, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:39:31,627 - INFO - Starting iteration 70
+2026-01-14 10:39:59,440 - INFO - Iteration 70 completed: {'iteration': 70, 'loss': 0.013136009918525815, 'epsilon': 0.17513733689334043, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:39:59,441 - INFO - Starting iteration 71
+2026-01-14 10:40:23,319 - INFO - Iteration 71 completed: {'iteration': 71, 'loss': 0.014969382109120489, 'epsilon': 0.17426165020887374, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:40:23,320 - INFO - Starting iteration 72
+2026-01-14 10:40:47,122 - INFO - Iteration 72 completed: {'iteration': 72, 'loss': 0.01448444351553917, 'epsilon': 0.17339034195782937, 'buffer_size': 50000, 'learning_rate': 0.0008100000000000001}
+2026-01-14 10:40:47,124 - INFO - Starting iteration 73
+2026-01-14 10:41:10,033 - INFO - Iteration 73 completed: {'iteration': 73, 'loss': 0.014476740499958396, 'epsilon': 0.17252339024804023, 'buffer_size': 50000, 'learning_rate': 0.000729}
+2026-01-14 10:41:10,034 - INFO - Starting iteration 74
+2026-01-14 10:41:31,583 - INFO - Iteration 74 completed: {'iteration': 74, 'loss': 0.013701196806505323, 'epsilon': 0.17166077329680002, 'buffer_size': 50000, 'learning_rate': 0.000729}
+2026-01-14 10:41:31,584 - INFO - Starting iteration 75
+2026-01-14 10:41:53,527 - INFO - Iteration 75 completed: {'iteration': 75, 'loss': 0.016343353455886243, 'epsilon': 0.17080246943031602, 'buffer_size': 50000, 'learning_rate': 0.000729}
+2026-01-14 10:41:53,528 - INFO - Starting iteration 76
+2026-01-14 10:42:21,292 - INFO - Starting iteration 75
+2026-01-14 10:42:43,870 - INFO - Iteration 75 completed: {'iteration': 75, 'loss': 0.011049655079841614, 'epsilon': 0.16994845708316444, 'buffer_size': 51830, 'learning_rate': 0.000729}
+2026-01-14 10:42:43,872 - INFO - Starting iteration 76
+2026-01-14 10:43:04,666 - INFO - Iteration 76 completed: {'iteration': 76, 'loss': 0.012689927453175187, 'epsilon': 0.16909871479774863, 'buffer_size': 53789, 'learning_rate': 0.000729}
+2026-01-14 10:43:04,668 - INFO - Starting iteration 77
+2026-01-14 10:43:24,739 - INFO - Iteration 77 completed: {'iteration': 77, 'loss': 0.013159130001440644, 'epsilon': 0.16825322122375988, 'buffer_size': 55740, 'learning_rate': 0.000729}
+2026-01-14 10:43:24,740 - INFO - Starting iteration 78
+2026-01-14 10:43:48,521 - INFO - Iteration 78 completed: {'iteration': 78, 'loss': 0.013080080831423403, 'epsilon': 0.1674119551176411, 'buffer_size': 57732, 'learning_rate': 0.000729}
+2026-01-14 10:43:48,522 - INFO - Starting iteration 79
+2026-01-14 10:44:10,687 - INFO - Starting iteration 75
+2026-01-14 10:44:32,800 - INFO - Iteration 75 completed: {'iteration': 75, 'loss': 0.013416110118851066, 'epsilon': 0.1697785086260813, 'buffer_size': 53641, 'learning_rate': 0.000729}
+2026-01-14 10:44:32,801 - INFO - Starting iteration 76
+2026-01-14 10:44:59,390 - INFO - Iteration 76 completed: {'iteration': 76, 'loss': 0.012976937880739569, 'epsilon': 0.1696087301174552, 'buffer_size': 55619, 'learning_rate': 0.000729}
+2026-01-14 10:44:59,390 - INFO - Starting iteration 77
+2026-01-14 10:45:19,771 - INFO - Iteration 77 completed: {'iteration': 77, 'loss': 0.01422730702906847, 'epsilon': 0.16943912138733774, 'buffer_size': 57467, 'learning_rate': 0.000729}
+2026-01-14 10:45:19,773 - INFO - Starting iteration 78
+2026-01-14 10:45:40,191 - INFO - Iteration 78 completed: {'iteration': 78, 'loss': 0.016959155909717083, 'epsilon': 0.1692696822659504, 'buffer_size': 59404, 'learning_rate': 0.000729}
+2026-01-14 10:45:40,192 - INFO - Starting iteration 79
+2026-01-14 10:46:00,941 - INFO - Iteration 79 completed: {'iteration': 79, 'loss': 0.014069377700798214, 'epsilon': 0.16910041258368447, 'buffer_size': 61404, 'learning_rate': 0.000729}
+2026-01-14 10:46:00,943 - INFO - Starting iteration 80
+2026-01-14 10:46:28,579 - INFO - Iteration 80 completed: {'iteration': 80, 'loss': 0.013567696860991418, 'epsilon': 0.16893131217110077, 'buffer_size': 63253, 'learning_rate': 0.000729}
+2026-01-14 10:46:28,579 - INFO - Starting iteration 81
+2026-01-14 10:46:55,618 - INFO - Iteration 81 completed: {'iteration': 81, 'loss': 0.016673981677740812, 'epsilon': 0.16876238085892967, 'buffer_size': 65098, 'learning_rate': 0.000729}
+2026-01-14 10:46:55,619 - INFO - Starting iteration 82
+2026-01-14 10:47:15,310 - INFO - Iteration 82 completed: {'iteration': 82, 'loss': 0.01614129766821861, 'epsilon': 0.16859361847807075, 'buffer_size': 67000, 'learning_rate': 0.000729}
+2026-01-14 10:47:15,311 - INFO - Starting iteration 83
+2026-01-14 10:47:33,977 - INFO - Iteration 83 completed: {'iteration': 83, 'loss': 0.01714122644625604, 'epsilon': 0.16842502485959268, 'buffer_size': 68957, 'learning_rate': 0.000729}
+2026-01-14 10:47:33,978 - INFO - Starting iteration 84
+2026-01-14 10:47:52,991 - INFO - Iteration 84 completed: {'iteration': 84, 'loss': 0.013265799847431481, 'epsilon': 0.1682565998347331, 'buffer_size': 70957, 'learning_rate': 0.000729}
+2026-01-14 10:47:52,993 - INFO - Starting iteration 85
+2026-01-14 10:48:14,963 - INFO - Iteration 85 completed: {'iteration': 85, 'loss': 0.013949346099980175, 'epsilon': 0.16808834323489835, 'buffer_size': 72693, 'learning_rate': 0.000729}
+2026-01-14 10:48:14,970 - INFO - Starting iteration 86
+2026-01-14 10:48:33,291 - INFO - Iteration 86 completed: {'iteration': 86, 'loss': 0.01326657496392727, 'epsilon': 0.16792025489166346, 'buffer_size': 74565, 'learning_rate': 0.000729}
+2026-01-14 10:48:33,292 - INFO - Starting iteration 87
+2026-01-14 10:48:52,027 - INFO - Iteration 87 completed: {'iteration': 87, 'loss': 0.015800257469527422, 'epsilon': 0.1677523346367718, 'buffer_size': 76454, 'learning_rate': 0.000729}
+2026-01-14 10:48:52,028 - INFO - Starting iteration 88
+2026-01-14 10:49:09,172 - INFO - Iteration 88 completed: {'iteration': 88, 'loss': 0.012042017979547381, 'epsilon': 0.16758458230213502, 'buffer_size': 78109, 'learning_rate': 0.000729}
+2026-01-14 10:49:09,173 - INFO - Starting iteration 89
+2026-01-14 10:49:27,796 - INFO - Iteration 89 completed: {'iteration': 89, 'loss': 0.012620310252532362, 'epsilon': 0.1674169977198329, 'buffer_size': 80109, 'learning_rate': 0.000729}
+2026-01-14 10:49:27,798 - INFO - Starting iteration 90
+2026-01-14 10:49:50,794 - INFO - Iteration 90 completed: {'iteration': 90, 'loss': 0.013636354124173522, 'epsilon': 0.16724958072211307, 'buffer_size': 82074, 'learning_rate': 0.000729}
+2026-01-14 10:49:50,795 - INFO - Starting iteration 91
+2026-01-14 10:50:09,553 - INFO - Iteration 91 completed: {'iteration': 91, 'loss': 0.013022322929464281, 'epsilon': 0.16708233114139096, 'buffer_size': 84061, 'learning_rate': 0.000729}
+2026-01-14 10:50:09,555 - INFO - Starting iteration 92
+2026-01-14 10:50:29,388 - INFO - Iteration 92 completed: {'iteration': 92, 'loss': 0.013216904457658529, 'epsilon': 0.16691524881024955, 'buffer_size': 86061, 'learning_rate': 0.000729}
+2026-01-14 10:50:29,389 - INFO - Starting iteration 93
+2026-01-14 10:50:48,380 - INFO - Iteration 93 completed: {'iteration': 93, 'loss': 0.013008716725744307, 'epsilon': 0.1667483335614393, 'buffer_size': 88020, 'learning_rate': 0.000729}
+2026-01-14 10:50:48,380 - INFO - Starting iteration 94
+2026-01-14 10:51:05,587 - INFO - Iteration 94 completed: {'iteration': 94, 'loss': 0.01281661125831306, 'epsilon': 0.16658158522787786, 'buffer_size': 89860, 'learning_rate': 0.000729}
+2026-01-14 10:51:05,588 - INFO - Starting iteration 95
+2026-01-14 10:51:27,650 - INFO - Iteration 95 completed: {'iteration': 95, 'loss': 0.0106037228833884, 'epsilon': 0.16641500364265, 'buffer_size': 91860, 'learning_rate': 0.000729}
+2026-01-14 10:51:27,651 - INFO - Starting iteration 96
+2026-01-14 10:51:46,737 - INFO - Iteration 96 completed: {'iteration': 96, 'loss': 0.010847882949747145, 'epsilon': 0.16624858863900735, 'buffer_size': 93812, 'learning_rate': 0.000729}
+2026-01-14 10:51:46,738 - INFO - Starting iteration 97
+2026-01-14 10:52:05,320 - INFO - Iteration 97 completed: {'iteration': 97, 'loss': 0.010873744171112776, 'epsilon': 0.16608234005036834, 'buffer_size': 95812, 'learning_rate': 0.000729}
+2026-01-14 10:52:05,321 - INFO - Starting iteration 98
+2026-01-14 10:52:23,018 - INFO - Iteration 98 completed: {'iteration': 98, 'loss': 0.012241002405062318, 'epsilon': 0.16591625771031798, 'buffer_size': 97577, 'learning_rate': 0.000729}
+2026-01-14 10:52:23,020 - INFO - Starting iteration 99
+2026-01-14 10:52:42,121 - INFO - Iteration 99 completed: {'iteration': 99, 'loss': 0.013033560244366527, 'epsilon': 0.16575034145260767, 'buffer_size': 99541, 'learning_rate': 0.000729}
+2026-01-14 10:57:50,972 - INFO - Starting iteration 100
+2026-01-14 10:58:22,455 - INFO - Iteration 100 completed: {'iteration': 100, 'loss': 0.012127370946109295, 'epsilon': 0.16558459111115506, 'buffer_size': 102541, 'learning_rate': 0.000729}
+2026-01-14 10:58:22,456 - INFO - Starting iteration 101
+2026-01-14 10:58:46,159 - INFO - Iteration 101 completed: {'iteration': 101, 'loss': 0.012152465479448437, 'epsilon': 0.1654190065200439, 'buffer_size': 105255, 'learning_rate': 0.000729}
+2026-01-14 10:58:46,160 - INFO - Starting iteration 102
+2026-01-14 10:59:12,337 - INFO - Iteration 102 completed: {'iteration': 102, 'loss': 0.015240573603659867, 'epsilon': 0.16525358751352387, 'buffer_size': 108241, 'learning_rate': 0.000729}
+2026-01-14 10:59:12,339 - INFO - Starting iteration 103
+2026-01-14 10:59:35,666 - INFO - Iteration 103 completed: {'iteration': 103, 'loss': 0.01433151667006314, 'epsilon': 0.16508833392601036, 'buffer_size': 110910, 'learning_rate': 0.000729}
+2026-01-14 10:59:35,667 - INFO - Starting iteration 104
+2026-01-14 11:00:00,363 - INFO - Iteration 104 completed: {'iteration': 104, 'loss': 0.015278632240369915, 'epsilon': 0.16492324559208435, 'buffer_size': 113728, 'learning_rate': 0.000729}
+2026-01-14 11:00:00,364 - INFO - Starting iteration 105
+2026-01-14 11:00:30,917 - INFO - Iteration 105 completed: {'iteration': 105, 'loss': 0.013797748135402799, 'epsilon': 0.16475832234649226, 'buffer_size': 116595, 'learning_rate': 0.000729}
+2026-01-14 11:00:30,919 - INFO - Starting iteration 106
+2026-01-14 11:00:58,917 - INFO - Iteration 106 completed: {'iteration': 106, 'loss': 0.015322171221487223, 'epsilon': 0.16459356402414577, 'buffer_size': 119595, 'learning_rate': 0.000729}
+2026-01-14 11:00:58,920 - INFO - Starting iteration 107
+2026-01-14 11:01:23,712 - INFO - Iteration 107 completed: {'iteration': 107, 'loss': 0.01506470814347267, 'epsilon': 0.16442897046012162, 'buffer_size': 122463, 'learning_rate': 0.000729}
+2026-01-14 11:01:23,714 - INFO - Starting iteration 108
+2026-01-14 11:01:49,149 - INFO - Iteration 108 completed: {'iteration': 108, 'loss': 0.0154008315410465, 'epsilon': 0.1642645414896615, 'buffer_size': 125351, 'learning_rate': 0.000729}
+2026-01-14 11:01:49,151 - INFO - Starting iteration 109
+2026-01-14 11:02:14,120 - INFO - Iteration 109 completed: {'iteration': 109, 'loss': 0.01657107868231833, 'epsilon': 0.16410027694817184, 'buffer_size': 128212, 'learning_rate': 0.000729}
+2026-01-14 11:02:14,121 - INFO - Starting iteration 110
+2026-01-14 11:02:46,280 - INFO - Iteration 110 completed: {'iteration': 110, 'loss': 0.013547767279669642, 'epsilon': 0.16393617667122368, 'buffer_size': 131151, 'learning_rate': 0.000729}
+2026-01-14 11:02:46,281 - INFO - Starting iteration 111
+2026-01-14 11:03:11,003 - INFO - Iteration 111 completed: {'iteration': 111, 'loss': 0.01675205691717565, 'epsilon': 0.16377224049455244, 'buffer_size': 133927, 'learning_rate': 0.000729}
+2026-01-14 11:03:11,004 - INFO - Starting iteration 112
+2026-01-14 11:03:36,066 - INFO - Iteration 112 completed: {'iteration': 112, 'loss': 0.01693498292006552, 'epsilon': 0.1636084682540579, 'buffer_size': 136663, 'learning_rate': 0.000729}
+2026-01-14 11:03:36,067 - INFO - Starting iteration 113
+2026-01-14 11:04:01,078 - INFO - Iteration 113 completed: {'iteration': 113, 'loss': 0.018510957434773444, 'epsilon': 0.16344485978580384, 'buffer_size': 139483, 'learning_rate': 0.000729}
+2026-01-14 11:04:01,080 - INFO - Starting iteration 114
+2026-01-14 11:04:25,230 - INFO - Iteration 114 completed: {'iteration': 114, 'loss': 0.015948376106098297, 'epsilon': 0.16328141492601803, 'buffer_size': 142199, 'learning_rate': 0.000729}
+2026-01-14 11:04:25,231 - INFO - Starting iteration 115
+2026-01-14 11:04:57,516 - INFO - Iteration 115 completed: {'iteration': 115, 'loss': 0.015447769360616802, 'epsilon': 0.163118133511092, 'buffer_size': 145041, 'learning_rate': 0.000729}
+2026-01-14 11:04:57,517 - INFO - Starting iteration 116
+2026-01-14 11:05:23,341 - INFO - Iteration 116 completed: {'iteration': 116, 'loss': 0.018913678685203196, 'epsilon': 0.16295501537758092, 'buffer_size': 147964, 'learning_rate': 0.000729}
+2026-01-14 11:05:23,343 - INFO - Starting iteration 117
+2026-01-14 11:05:45,829 - INFO - Iteration 117 completed: {'iteration': 117, 'loss': 0.01709451451897621, 'epsilon': 0.16279206036220334, 'buffer_size': 150492, 'learning_rate': 0.000729}
+2026-01-14 11:05:45,831 - INFO - Starting iteration 118
+2026-01-14 11:06:13,048 - INFO - Iteration 118 completed: {'iteration': 118, 'loss': 0.016571442503482102, 'epsilon': 0.16262926830184113, 'buffer_size': 153492, 'learning_rate': 0.000729}
+2026-01-14 11:06:13,049 - INFO - Starting iteration 119
+2026-01-14 11:06:38,195 - INFO - Iteration 119 completed: {'iteration': 119, 'loss': 0.016625668946653606, 'epsilon': 0.16246663903353928, 'buffer_size': 156372, 'learning_rate': 0.000729}
+2026-01-14 11:06:38,197 - INFO - Starting iteration 120
+2026-01-14 11:07:11,424 - INFO - Iteration 120 completed: {'iteration': 120, 'loss': 0.01732379850000143, 'epsilon': 0.16230417239450573, 'buffer_size': 159272, 'learning_rate': 0.000729}
+2026-01-14 11:07:11,429 - INFO - Starting iteration 121
+2026-01-14 11:07:37,243 - INFO - Iteration 121 completed: {'iteration': 121, 'loss': 0.017505424795672297, 'epsilon': 0.1621418682221112, 'buffer_size': 162167, 'learning_rate': 0.00069255}
+2026-01-14 11:07:37,244 - INFO - Starting iteration 122
+2026-01-14 11:08:02,634 - INFO - Iteration 122 completed: {'iteration': 122, 'loss': 0.016653534304350615, 'epsilon': 0.1619797263538891, 'buffer_size': 165001, 'learning_rate': 0.00069255}
+2026-01-14 11:08:02,635 - INFO - Starting iteration 123
+2026-01-14 11:08:26,870 - INFO - Iteration 123 completed: {'iteration': 123, 'loss': 0.01756951678544283, 'epsilon': 0.1618177466275352, 'buffer_size': 167647, 'learning_rate': 0.00069255}
+2026-01-14 11:08:26,873 - INFO - Starting iteration 124
+2026-01-14 11:08:52,536 - INFO - Iteration 124 completed: {'iteration': 124, 'loss': 0.018771308567374946, 'epsilon': 0.16165592888090766, 'buffer_size': 170585, 'learning_rate': 0.00069255}
+2026-01-14 11:08:52,538 - INFO - Starting iteration 125
+2026-01-14 11:09:27,002 - INFO - Iteration 125 completed: {'iteration': 125, 'loss': 0.01568422461859882, 'epsilon': 0.16149427295202676, 'buffer_size': 173580, 'learning_rate': 0.00069255}
+2026-01-14 11:09:27,414 - INFO - Starting iteration 126
+2026-01-14 11:09:53,216 - INFO - Iteration 126 completed: {'iteration': 126, 'loss': 0.017071028752252457, 'epsilon': 0.16133277867907472, 'buffer_size': 176467, 'learning_rate': 0.00069255}
+2026-01-14 11:09:53,217 - INFO - Starting iteration 127
+2026-01-14 11:10:19,355 - INFO - Iteration 127 completed: {'iteration': 127, 'loss': 0.017647044453769925, 'epsilon': 0.16117144590039564, 'buffer_size': 179436, 'learning_rate': 0.00069255}
+2026-01-14 11:10:19,357 - INFO - Starting iteration 128
+2026-01-14 11:10:44,592 - INFO - Iteration 128 completed: {'iteration': 128, 'loss': 0.01837953319773078, 'epsilon': 0.16101027445449526, 'buffer_size': 182343, 'learning_rate': 0.00069255}
+2026-01-14 11:10:44,592 - INFO - Starting iteration 129
+2026-01-14 11:11:09,851 - INFO - Iteration 129 completed: {'iteration': 129, 'loss': 0.017149230418726805, 'epsilon': 0.16084926418004075, 'buffer_size': 185242, 'learning_rate': 0.00069255}
+2026-01-14 11:11:09,852 - INFO - Starting iteration 130
+2026-01-14 11:11:44,039 - INFO - Iteration 130 completed: {'iteration': 130, 'loss': 0.019720335956662893, 'epsilon': 0.16068841491586072, 'buffer_size': 187995, 'learning_rate': 0.00069255}
+2026-01-14 11:11:44,040 - INFO - Starting iteration 131
+2026-01-14 11:12:11,374 - INFO - Iteration 131 completed: {'iteration': 131, 'loss': 0.0167995385825634, 'epsilon': 0.16052772650094485, 'buffer_size': 190995, 'learning_rate': 0.00069255}
+2026-01-14 11:12:11,375 - INFO - Starting iteration 132
+2026-01-14 11:12:36,742 - INFO - Iteration 132 completed: {'iteration': 132, 'loss': 0.016193660348653792, 'epsilon': 0.16036719877444391, 'buffer_size': 193914, 'learning_rate': 0.00069255}
+2026-01-14 11:12:36,744 - INFO - Starting iteration 133
+2026-01-14 11:13:02,675 - INFO - Iteration 133 completed: {'iteration': 133, 'loss': 0.01760270190425217, 'epsilon': 0.16020683157566948, 'buffer_size': 196905, 'learning_rate': 0.00069255}
+2026-01-14 11:13:02,676 - INFO - Starting iteration 134
+2026-01-14 11:13:27,739 - INFO - Iteration 134 completed: {'iteration': 134, 'loss': 0.018961188849061728, 'epsilon': 0.1600466247440938, 'buffer_size': 199805, 'learning_rate': 0.00069255}
+2026-01-14 11:13:27,742 - INFO - Starting iteration 135
+2026-01-14 11:14:04,313 - INFO - Iteration 135 completed: {'iteration': 135, 'loss': 0.019501004368066788, 'epsilon': 0.15988657811934973, 'buffer_size': 202773, 'learning_rate': 0.00069255}
+2026-01-14 11:14:04,314 - INFO - Starting iteration 136
+2026-01-14 11:14:30,281 - INFO - Iteration 136 completed: {'iteration': 136, 'loss': 0.016806512232869865, 'epsilon': 0.15972669154123037, 'buffer_size': 205773, 'learning_rate': 0.00069255}
+2026-01-14 11:14:30,282 - INFO - Starting iteration 137
+2026-01-14 11:14:57,138 - INFO - Iteration 137 completed: {'iteration': 137, 'loss': 0.019368517445400357, 'epsilon': 0.15956696484968913, 'buffer_size': 208773, 'learning_rate': 0.00069255}
+2026-01-14 11:14:57,139 - INFO - Starting iteration 138
+2026-01-14 11:15:23,958 - INFO - Iteration 138 completed: {'iteration': 138, 'loss': 0.01953945965506136, 'epsilon': 0.15940739788483943, 'buffer_size': 211773, 'learning_rate': 0.00069255}
+2026-01-14 11:15:23,959 - INFO - Starting iteration 139
+2026-01-14 11:15:49,055 - INFO - Iteration 139 completed: {'iteration': 139, 'loss': 0.016032501542940735, 'epsilon': 0.1592479904869546, 'buffer_size': 214511, 'learning_rate': 0.00069255}
+2026-01-14 11:15:49,056 - INFO - Starting iteration 140
+2026-01-14 11:16:23,630 - INFO - Iteration 140 completed: {'iteration': 140, 'loss': 0.01827665069140494, 'epsilon': 0.15908874249646765, 'buffer_size': 217511, 'learning_rate': 0.00069255}
+2026-01-14 11:16:23,631 - INFO - Starting iteration 141
+2026-01-14 11:16:49,613 - INFO - Iteration 141 completed: {'iteration': 141, 'loss': 0.018198465555906297, 'epsilon': 0.1589296537539712, 'buffer_size': 220229, 'learning_rate': 0.00069255}
+2026-01-14 11:16:49,615 - INFO - Starting iteration 142
+2026-01-14 11:17:14,431 - INFO - Iteration 142 completed: {'iteration': 142, 'loss': 0.017313454020768403, 'epsilon': 0.15877072410021723, 'buffer_size': 223018, 'learning_rate': 0.0006579225}
+2026-01-14 11:17:14,433 - INFO - Starting iteration 143
+2026-01-14 11:17:44,650 - INFO - Iteration 143 completed: {'iteration': 143, 'loss': 0.016772790485993026, 'epsilon': 0.158611953376117, 'buffer_size': 225899, 'learning_rate': 0.0006579225}
+2026-01-14 11:17:44,651 - INFO - Starting iteration 144
+2026-01-14 11:18:18,448 - INFO - Iteration 144 completed: {'iteration': 144, 'loss': 0.018979324121028186, 'epsilon': 0.15845334142274087, 'buffer_size': 228851, 'learning_rate': 0.0006579225}
+2026-01-14 11:18:18,452 - INFO - Starting iteration 145
+2026-01-14 11:19:05,952 - INFO - Iteration 145 completed: {'iteration': 145, 'loss': 0.017646610783413053, 'epsilon': 0.1582948880813181, 'buffer_size': 231682, 'learning_rate': 0.0006579225}
+2026-01-14 11:19:05,953 - INFO - Starting iteration 146
+2026-01-14 11:19:35,411 - INFO - Iteration 146 completed: {'iteration': 146, 'loss': 0.01745284157805145, 'epsilon': 0.1581365931932368, 'buffer_size': 234555, 'learning_rate': 0.0006579225}
+2026-01-14 11:19:35,413 - INFO - Starting iteration 147
+2026-01-14 11:20:03,905 - INFO - Iteration 147 completed: {'iteration': 147, 'loss': 0.01905673914588988, 'epsilon': 0.15797845660004356, 'buffer_size': 237547, 'learning_rate': 0.0006579225}
+2026-01-14 11:20:03,908 - INFO - Starting iteration 148
+2026-01-14 11:20:39,794 - INFO - Iteration 148 completed: {'iteration': 148, 'loss': 0.017223018361255525, 'epsilon': 0.15782047814344352, 'buffer_size': 240503, 'learning_rate': 0.0006579225}
+2026-01-14 11:20:39,796 - INFO - Starting iteration 149
+2026-01-14 11:21:10,483 - INFO - Iteration 149 completed: {'iteration': 149, 'loss': 0.017483296617865563, 'epsilon': 0.15766265766530008, 'buffer_size': 243248, 'learning_rate': 0.0006579225}
+2026-01-14 11:33:56,004 - INFO - Starting iteration 150
+2026-01-14 11:34:52,172 - INFO - Iteration 150 completed: {'iteration': 150, 'loss': 0.020553738391026855, 'epsilon': 0.15750499500763476, 'buffer_size': 246642, 'learning_rate': 0.0006579225}
+2026-01-14 11:34:52,174 - INFO - Starting iteration 151
+2026-01-14 11:36:14,198 - INFO - Starting iteration 150
+2026-01-14 11:37:06,844 - INFO - Iteration 150 completed: {'iteration': 150, 'loss': 0.01862827455624938, 'epsilon': 0.15734749001262713, 'buffer_size': 250388, 'learning_rate': 0.0006579225}
+2026-01-14 11:37:06,846 - INFO - Starting iteration 151
+2026-01-14 11:37:51,660 - INFO - Iteration 151 completed: {'iteration': 151, 'loss': 0.017857664804905655, 'epsilon': 0.1571901425226145, 'buffer_size': 254092, 'learning_rate': 0.0006579225}
+2026-01-14 11:37:51,661 - INFO - Starting iteration 152
+2026-01-14 11:38:38,389 - INFO - Iteration 152 completed: {'iteration': 152, 'loss': 0.01735853126272559, 'epsilon': 0.1570329523800919, 'buffer_size': 257877, 'learning_rate': 0.0006579225}
+2026-01-14 11:38:38,390 - INFO - Starting iteration 153
+2026-01-14 11:39:32,866 - INFO - Iteration 153 completed: {'iteration': 153, 'loss': 0.015756367947906254, 'epsilon': 0.1568759194277118, 'buffer_size': 261781, 'learning_rate': 0.0006579225}
+2026-01-14 11:39:32,868 - INFO - Starting iteration 154
+2026-01-14 11:40:24,830 - INFO - Iteration 154 completed: {'iteration': 154, 'loss': 0.017733920812606812, 'epsilon': 0.1567190435082841, 'buffer_size': 265685, 'learning_rate': 0.0006579225}
+2026-01-14 11:40:24,831 - INFO - Starting iteration 155
+2026-01-14 11:41:20,889 - INFO - Iteration 155 completed: {'iteration': 155, 'loss': 0.01750265385955572, 'epsilon': 0.15656232446477583, 'buffer_size': 269685, 'learning_rate': 0.0006579225}
+2026-01-14 11:41:20,890 - INFO - Starting iteration 156
+2026-01-14 11:42:12,273 - INFO - Iteration 156 completed: {'iteration': 156, 'loss': 0.015803869273513554, 'epsilon': 0.15640576214031104, 'buffer_size': 273685, 'learning_rate': 0.0006579225}
+2026-01-14 11:42:12,274 - INFO - Starting iteration 157
+2026-01-14 11:43:08,975 - INFO - Iteration 157 completed: {'iteration': 157, 'loss': 0.015685387272387743, 'epsilon': 0.15624935637817072, 'buffer_size': 277685, 'learning_rate': 0.0006579225}
+2026-01-14 11:43:08,977 - INFO - Starting iteration 158
+2026-01-14 11:43:50,342 - INFO - Iteration 158 completed: {'iteration': 158, 'loss': 0.016063196789473294, 'epsilon': 0.15609310702179255, 'buffer_size': 281508, 'learning_rate': 0.0006579225}
+2026-01-14 11:43:50,345 - INFO - Starting iteration 159
+2026-01-14 11:45:42,801 - INFO - Iteration 159 completed: {'iteration': 159, 'loss': 0.015392728019505739, 'epsilon': 0.15593701391477074, 'buffer_size': 285319, 'learning_rate': 0.0006579225}
+2026-01-14 11:45:42,804 - INFO - Starting iteration 160
+2026-01-14 11:47:31,535 - INFO - Iteration 160 completed: {'iteration': 160, 'loss': 0.015531977284699678, 'epsilon': 0.15578107690085596, 'buffer_size': 289044, 'learning_rate': 0.0006579225}
+2026-01-14 11:47:31,536 - INFO - Starting iteration 161
+2026-01-14 11:48:47,153 - INFO - Iteration 161 completed: {'iteration': 161, 'loss': 0.01447638012468815, 'epsilon': 0.1556252958239551, 'buffer_size': 292922, 'learning_rate': 0.0006579225}
+2026-01-14 11:48:47,154 - INFO - Starting iteration 162
+2026-01-14 11:50:00,000 - INFO - Iteration 162 completed: {'iteration': 162, 'loss': 0.014196995962411165, 'epsilon': 0.15546967052813113, 'buffer_size': 296608, 'learning_rate': 0.0006579225}
+2026-01-14 11:50:00,001 - INFO - Starting iteration 163
+2026-01-14 11:51:11,329 - INFO - Iteration 163 completed: {'iteration': 163, 'loss': 0.01551400569267571, 'epsilon': 0.155314200857603, 'buffer_size': 300334, 'learning_rate': 0.0006579225}
+2026-01-14 11:51:11,333 - INFO - Starting iteration 164
+2026-01-14 11:52:24,677 - INFO - Iteration 164 completed: {'iteration': 164, 'loss': 0.016669139582663774, 'epsilon': 0.1551588866567454, 'buffer_size': 304168, 'learning_rate': 0.0006579225}
+2026-01-14 11:52:24,679 - INFO - Starting iteration 165
+2026-01-14 11:54:02,555 - INFO - Iteration 165 completed: {'iteration': 165, 'loss': 0.01539026577025652, 'epsilon': 0.15500372777008867, 'buffer_size': 308090, 'learning_rate': 0.0006579225}
+2026-01-14 11:54:02,555 - INFO - Starting iteration 166
+2026-01-14 11:55:19,217 - INFO - Iteration 166 completed: {'iteration': 166, 'loss': 0.01710455996915698, 'epsilon': 0.1548487240423186, 'buffer_size': 312017, 'learning_rate': 0.0006579225}
+2026-01-14 11:55:19,242 - INFO - Starting iteration 167
+2026-01-14 11:56:31,846 - INFO - Iteration 167 completed: {'iteration': 167, 'loss': 0.015360044594854117, 'epsilon': 0.15469387531827627, 'buffer_size': 315835, 'learning_rate': 0.0006579225}
+2026-01-14 11:56:31,847 - INFO - Starting iteration 168
+2026-01-14 11:57:57,106 - INFO - Iteration 168 completed: {'iteration': 168, 'loss': 0.01558541102334857, 'epsilon': 0.154539181442958, 'buffer_size': 319835, 'learning_rate': 0.0006579225}
+2026-01-14 11:57:57,109 - INFO - Starting iteration 169
+2026-01-14 11:59:47,853 - INFO - Iteration 169 completed: {'iteration': 169, 'loss': 0.014650687631219624, 'epsilon': 0.15438464226151505, 'buffer_size': 323758, 'learning_rate': 0.0006579225}
+2026-01-14 11:59:47,911 - INFO - Starting iteration 170
+2026-01-14 12:01:33,886 - INFO - Iteration 170 completed: {'iteration': 170, 'loss': 0.013814450576901435, 'epsilon': 0.15423025761925355, 'buffer_size': 327492, 'learning_rate': 0.0006579225}
+2026-01-14 12:01:33,887 - INFO - Starting iteration 171
+2026-01-14 12:03:03,640 - INFO - Iteration 171 completed: {'iteration': 171, 'loss': 0.014704122561961413, 'epsilon': 0.15407602736163428, 'buffer_size': 331492, 'learning_rate': 0.0006579225}
+2026-01-14 12:03:03,642 - INFO - Starting iteration 172
