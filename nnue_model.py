@@ -73,23 +73,42 @@ class FluxFishNNUE(nn.Module):
         return x
     
     def forward(self, white_features: torch.Tensor, black_features: torch.Tensor, 
-                stm: bool) -> torch.Tensor:
+                stm: torch.Tensor) -> torch.Tensor:
         """
-        Full forward pass.
+        Full forward pass with batch support.
         
         Args:
-            white_features: Features from white's perspective
-            black_features: Features from black's perspective  
-            stm: True if white to move, False if black to move
+            white_features: Features from white's perspective [Batch, 768]
+            black_features: Features from black's perspective [Batch, 768]
+            stm: Tensor indicating side to move. 
+                 If simple bool -> applies to all.
+                 If Tensor [Batch, 1] or [Batch] -> 1.0 (White), 0.0 (Black)
         """
         w_acc = self.forward_accumulator(white_features)
         b_acc = self.forward_accumulator(black_features)
         
-        # Concatenate based on side to move
-        if stm:  # White to move
-            x = torch.cat([w_acc, b_acc], dim=-1)
-        else:  # Black to move
-            x = torch.cat([b_acc, w_acc], dim=-1)
+        # Handle stm being a tensor or a bool
+        if isinstance(stm, bool):
+            if stm:
+                x = torch.cat([w_acc, b_acc], dim=-1)
+            else:
+                x = torch.cat([b_acc, w_acc], dim=-1)
+        else:
+            # Assume stm is a tensor [Batch, 1] usually
+            if stm.dim() == 1:
+                stm = stm.unsqueeze(-1)
+            
+            # STM is 1.0 for White, 0.0 for Black
+            # We want: if White -> (w, b), if Black -> (b, w)
+            
+            # Construct both possible concatenations: [Batch, 512]
+            wb = torch.cat([w_acc, b_acc], dim=-1)
+            bw = torch.cat([b_acc, w_acc], dim=-1)
+            
+            # Select based on STM mask
+            # stm is 1 (White) -> select wb
+            # stm is 0 (Black) -> select bw
+            x = stm * wb + (1 - stm) * bw
         
         # Output head
         x = torch.clamp(self.l1(x), 0, 1)
@@ -140,6 +159,7 @@ class FluxFishEvaluator:
             w_feat = self.model.get_features(board, chess.WHITE).to(self.device)
             b_feat = self.model.get_features(board, chess.BLACK).to(self.device)
             
+            # For evaluation, pass stm as bool (faster than tensor creation)
             value = self.model(w_feat, b_feat, board.turn == chess.WHITE)
             return value.item()
 

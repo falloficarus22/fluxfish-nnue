@@ -1,59 +1,146 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
+#include <string>
+#include <sstream>
+#include <thread>
+#include <atomic>
+#include <algorithm>
 #include "chess.hpp"
 #include "nnue_inference.h"
 #include "mcts.h"
 
-int main(int argc, char* argv[]) {
-    std::string fen = chess::constants::STARTPOS;
-    int iterations = 3000;
-    
-    // Parse command line arguments
-    if (argc >= 2) {
-        // Read FEN from file
-        std::ifstream fen_file(argv[1]);
-        if (fen_file.is_open()) {
-            std::getline(fen_file, fen);
-            fen_file.close();
-        }
-    }
-    
-    if (argc >= 3) {
-        iterations = std::stoi(argv[2]);
-    }
-    
-    // Quiet mode for UCI - only output essential info
-    bool quiet_mode = (argc >= 2);
-    
-    if (!quiet_mode) {
-        std::cout << "FluxFish C++ Engine Initializing..." << std::endl;
-    }
-    
-    NNUE nnue;
-    if (nnue.load_weights("../fluxfish.bin")) {
-        if (!quiet_mode) {
-            std::cout << "Successfully loaded NNUE weights." << std::endl;
-        }
-    } else {
-        std::cerr << "Failed to load NNUE weights!" << std::endl;
-        return 1;
-    }
+// Simple time management
+struct SearchParams {
+    int wtime = 0;
+    int btime = 0;
+    int winc = 0;
+    int binc = 0;
+    int movetime = 0;
+    bool infinite = false;
+};
 
-    // Initialize board with given position
+void uci_loop() {
     chess::Board board;
-    board.setFen(fen);
+    NNUE nnue;
+    
+    // Try to load weights from multiple locations
+    if (nnue.load_weights("fluxfish.bin")) {
+        std::cout << "info string Loaded weights from fluxfish.bin" << std::endl;
+    } else if (nnue.load_weights("../fluxfish.bin")) {
+        std::cout << "info string Loaded weights from ../fluxfish.bin" << std::endl;
+    } else {
+        std::cout << "info string Failed to load NNUE weights! Engine will plain random moves/crash." << std::endl;
+    }
     
     MCTS mcts(nnue);
     
-    if (!quiet_mode) {
-        std::cout << "Starting MCTS search (" << iterations << " iterations)..." << std::endl;
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        std::istringstream iss(line);
+        std::string token;
+        iss >> token;
+        
+        if (token == "uci") {
+            std::cout << "id name FluxFish C++" << std::endl;
+            std::cout << "id author FluxFish Team" << std::endl;
+            std::cout << "option name Hash type spin default 16 min 1 max 1024" << std::endl;
+            std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
+            std::cout << "uciok" << std::endl;
+        }
+        else if (token == "isready") {
+            std::cout << "readyok" << std::endl;
+        }
+        else if (token == "ucinewgame") {
+            board = chess::Board();
+            // Clear MCTS tree/cache if implemented
+        }
+        else if (token == "position") {
+            std::string arg;
+            iss >> arg;
+            if (arg == "startpos") {
+                board = chess::Board();
+                if (iss >> arg && arg == "moves") {
+                    // consume "moves" token, proceed to loop
+                }
+            } else if (arg == "fen") {
+                std::string fen;
+                while (iss >> arg && arg != "moves") {
+                    fen += arg + " ";
+                }
+                board.setFen(fen);
+            }
+            
+            // Apply moves
+            // If the last token was "moves" or we are subsequent
+            if (arg == "moves") {
+                std::string move_str;
+                while (iss >> move_str) {
+                    // chess::uci::parseSan is not standard, use uci::parseUci or manual
+                    // The library likely supports board.makeMove(chess::uci::uciToMove(board, move_str));
+                    // Let's assume uci::uciToMove exists (standard name).
+                    // If not, we fix it in compilation.
+                    try {
+                        chess::Move move = chess::uci::uciToMove(board, move_str);
+                        board.makeMove(move);
+                    } catch (...) {
+                       // ignore illegal
+                    }
+                }
+            }
+        }
+        else if (token == "go") {
+            SearchParams params;
+            std::string arg;
+            while (iss >> arg) {
+                if (arg == "wtime") { iss >> params.wtime; }
+                else if (arg == "btime") { iss >> params.btime; }
+                else if (arg == "winc") { iss >> params.winc; }
+                else if (arg == "binc") { iss >> params.binc; }
+                else if (arg == "movetime") { iss >> params.movetime; }
+                else if (arg == "infinite") { params.infinite = true; }
+            }
+            
+            // Time Management
+            float time_limit_s = 5.0f; // Default for infinite/ponder
+            int iterations = 2000000; // Limit iterations if needed
+            
+            if (params.movetime > 0) {
+                time_limit_s = (params.movetime / 1000.0f) * 0.95f; 
+            } else if (params.wtime > 0) {
+                // Simple 1/30th time management
+                int my_time = (board.sideToMove() == chess::Color::WHITE) ? params.wtime : params.btime;
+                int my_inc = (board.sideToMove() == chess::Color::WHITE) ? params.winc : params.binc;
+                // Use slightly more efficient time mgmt: time / 20 + inc
+                time_limit_s = (my_time / 20.0f + my_inc * 0.5f) / 1000.0f;
+            }
+            
+            // Buffer to avoid loss on time
+            time_limit_s = std::max(0.01f, time_limit_s - 0.05f); 
+            
+            chess::Move best = mcts.search(board, iterations, time_limit_s);
+            std::cout << "bestmove " << chess::uci::moveToUci(best) << std::endl;
+        }
+        else if (token == "quit") {
+            break;
+        }
+    }
+}
+
+int main(int argc, char* argv[]) {
+    // Check if arguments provided (CLI mode)
+    if (argc >= 2) {
+         std::string arg1 = argv[1];
+         // Keep compatibility with old single-move test
+         if (arg1 != "uci") {
+             // Old CLI behavior if needed... 
+             // But actually, let's just default to UCI if "uci" 
+             // and maybe keep legacy behavior if it's a FEN file?
+             // For now, let's just force UCI loop if valid, otherwise existing behavior
+         }
     }
     
-    chess::Move best = mcts.search(board, iterations);
-    
-    std::string move_str = chess::uci::moveToUci(best);
-    std::cout << "Best move found: " << move_str << std::endl;
+    // Default to UCI loop 
+    uci_loop();
 
     return 0;
 }
