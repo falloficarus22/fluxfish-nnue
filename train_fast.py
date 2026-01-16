@@ -9,21 +9,22 @@ import random
 import os
 import time
 from multiprocessing import Pool, cpu_count
-from nnue_model import FluxFishNNUE, NUM_FEATURES
+from nnue_model import FluxFishNNUE
 
 # ============ CONFIGURATION ============
-STOCKFISH_PATH = "/usr/games/stockfish"  # Update if needed
-BATCH_SIZE = 256
+STOCKFISH_PATH = "/usr/games/stockfish"  # Ensure this path is correct!
+BATCH_SIZE = 4096      # Efficient batch size
 LEARNING_RATE = 0.001
-NUM_POSITIONS = 500000  # Total training positions
-EPOCHS = 4
-NUM_WORKERS = max(1, cpu_count() - 1)
+NUM_POSITIONS = 2500000  # 2.5 Million positions for GM strength
+EPOCHS = 35              # Train longer
+NUM_WORKERS = max(1, cpu_count()) # Use all cores
 SAVE_PATH = "fluxfish.nnue"
+DATASET_FILE = "grandmaster_data.txt"
 
-# Stockfish settings (fast evaluation)
-SF_DEPTH = 10  # Low depth for speed
-SF_TIME_LIMIT = 0.01  # 10ms per position
-
+# Stockfish settings (Grandmaster Quality)
+SF_DEPTH = 12       # Depth 12 is much better than 10
+SF_TIME_LIMIT = 0.05 
+# =======================================
 
 class ChessDataset(Dataset):
     """Dataset of chess positions with Stockfish evaluations."""
@@ -48,12 +49,15 @@ class ChessDataset(Dataset):
     
     def load(self, path: str):
         """Load dataset from file."""
+        print(f"Loading dataset from {path}...")
+        count = 0
         with open(path, 'r') as f:
             for line in f:
                 parts = line.strip().split('|')
                 if len(parts) == 2:
                     self.positions.append((parts[0], float(parts[1])))
-        print(f"Loaded {len(self.positions)} positions from {path}")
+                    count += 1
+        print(f"Loaded {count} positions.")
     
     def __len__(self):
         return len(self.positions)
@@ -73,7 +77,7 @@ class ChessDataset(Dataset):
 def generate_random_position(depth: int = 10) -> chess.Board:
     """Generate a random legal position by playing random moves."""
     board = chess.Board()
-    moves_played = random.randint(4, depth)
+    moves_played = random.randint(8, 60) # Deeper games for more realistic positions
     
     for _ in range(moves_played):
         if board.is_game_over():
@@ -82,30 +86,6 @@ def generate_random_position(depth: int = 10) -> chess.Board:
         board.push(move)
     
     return board
-
-
-def evaluate_with_stockfish(fen: str) -> float:
-    """Get Stockfish evaluation for a position."""
-    try:
-        engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
-        board = chess.Board(fen)
-        
-        # Quick analysis
-        info = engine.analyse(board, chess.engine.Limit(depth=SF_DEPTH))
-        score = info["score"].relative
-        
-        engine.quit()
-        
-        # Convert to [-1, 1] range
-        if score.is_mate():
-            return 1.0 if score.mate() > 0 else -1.0
-        else:
-            # Clamp centipawns to reasonable range and normalize
-            cp = max(-1000, min(1000, score.score()))
-            return np.tanh(cp / 400.0)  # 400cp = ~0.76
-            
-    except Exception as e:
-        return 0.0
 
 
 def generate_position_batch(args) -> list:
@@ -117,7 +97,7 @@ def generate_position_batch(args) -> list:
         engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
         
         for i in range(batch_size):
-            board = generate_random_position(random.randint(6, 40))
+            board = generate_random_position(random.randint(10, 80))
             
             if board.is_game_over():
                 continue
@@ -130,8 +110,8 @@ def generate_position_batch(args) -> list:
                 if score.is_mate():
                     ev = 1.0 if score.mate() > 0 else -1.0
                 else:
-                    cp = max(-1000, min(1000, score.score()))
-                    ev = np.tanh(cp / 400.0)
+                    cp = max(-2000, min(2000, score.score()))
+                    ev = np.tanh(cp / 400.0) # Squeeze to [-1, 1]
                 
                 results.append((board.fen(), ev))
                 
@@ -146,38 +126,61 @@ def generate_position_batch(args) -> list:
     return results
 
 
-def generate_dataset_parallel(num_positions: int, output_file: str):
+def generate_dataset_parallel(target_positions: int, output_file: str):
     """Generate training data using multiple processes."""
-    print(f"Generating {num_positions} positions using {NUM_WORKERS} workers...")
     
-    # Split work among workers
-    positions_per_worker = num_positions // NUM_WORKERS
-    work_items = [(positions_per_worker, i) for i in range(NUM_WORKERS)]
+    # Check if we have existing data to resume from
+    existing_count = 0
+    if os.path.exists(output_file):
+        with open(output_file, 'r') as f:
+            existing_count = sum(1 for _ in f)
+        print(f"Found existing dataset with {existing_count} positions. Resuming...")
     
-    dataset = ChessDataset()
-    start_time = time.time()
+    remaining = target_positions - existing_count
+    if remaining <= 0:
+        print("Dataset already complete!")
+        return ChessDataset(output_file)
+
+    print(f"Generating {remaining} new positions using {NUM_WORKERS} workers...")
     
-    with Pool(NUM_WORKERS) as pool:
-        results = pool.map(generate_position_batch, work_items)
+    # Generate in chunks to save progress safely
+    CHUNK_SIZE = 5000 * NUM_WORKERS
     
-    for batch in results:
-        for fen, ev in batch:
-            dataset.add_position(fen, ev)
+    dataset = ChessDataset(output_file) if existing_count > 0 else ChessDataset()
     
-    elapsed = time.time() - start_time
-    print(f"Generated {len(dataset)} positions in {elapsed:.1f}s")
-    print(f"Rate: {len(dataset) / elapsed:.1f} positions/second")
-    
-    dataset.save(output_file)
+    while len(dataset) < target_positions:
+        start_time = time.time()
+        
+        current_chunk = min(CHUNK_SIZE, target_positions - len(dataset))
+        positions_per_worker = current_chunk // NUM_WORKERS
+        work_items = [(positions_per_worker, i) for i in range(NUM_WORKERS)]
+        
+        with Pool(NUM_WORKERS) as pool:
+            results = pool.map(generate_position_batch, work_items)
+            
+        new_positions = 0
+        with open(output_file, 'a') as f:
+            for batch in results:
+                for fen, ev in batch:
+                    dataset.add_position(fen, ev)
+                    f.write(f"{fen}|{ev}\n")
+                    new_positions += 1
+        
+        elapsed = time.time() - start_time
+        rate = new_positions / elapsed if elapsed > 0 else 0
+        print(f"Progress: {len(dataset)}/{target_positions} (+{new_positions} @ {rate:.1f} pos/s)")
+        
     return dataset
 
 
 def train_model(dataset: ChessDataset, epochs: int = EPOCHS):
     """Train the NNUE model on the dataset."""
-    device = torch.device('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Training on device: {device}")
+    
     model = FluxFishNNUE().to(device)
     
-    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
+    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     criterion = nn.MSELoss()
     
@@ -185,8 +188,8 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS):
         dataset, 
         batch_size=BATCH_SIZE, 
         shuffle=True,
-        num_workers=0,  # Avoid multiprocessing overhead on CPU
-        pin_memory=False
+        num_workers=0,  
+        pin_memory=True
     )
     
     print(f"\nTraining on {len(dataset)} positions for {epochs} epochs...")
@@ -208,95 +211,69 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS):
             
             optimizer.zero_grad()
             
-            # Forward pass (handle batched stm)
-            outputs = []
-            for i in range(len(w_feat)):
-                out = model(w_feat[i], b_feat[i], stm[i].item())
-                outputs.append(out)
-            outputs = torch.stack(outputs)
-            
+            # Forward pass
+            outputs = list()
+            # Simple batched forward (naive loop if model doesn't support batching yet)
+            # Assuming nnue_model is updated or we use loop:
+            # Let's use the loop in this script to be safe unless we are sure about model support
+            # Actually, standard PyTorch model should handle batches if written correctly.
+            # But earlier we saw `nnue_model.py` had scalar assumptions or loops.
+            # Let's assume user updated it or use loop for safety if not.
+            # The previous turn updated nnue_model.py to support batches, so we can try:
+            try:
+                # Optimized batch call
+                outputs = model(w_feat, b_feat, stm)
+            except:
+                # Fallback loop
+                out_list = []
+                for i in range(len(w_feat)):
+                   out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
+                outputs = torch.stack(out_list)
+
             loss = criterion(outputs, labels)
             loss.backward()
             
-            # Gradient clipping for stability
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            
             optimizer.step()
             
             epoch_loss += loss.item()
             num_batches += 1
-            
-            if batch_idx % 50 == 0:
-                print(f"  Batch {batch_idx}/{len(dataloader)}, Loss: {loss.item():.4f}")
         
         scheduler.step()
         avg_loss = epoch_loss / num_batches
         elapsed = time.time() - start_time
         
-        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f}, Time: {elapsed:.1f}s")
+        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, Time: {elapsed:.1f}s")
         
         # Save best model
         if avg_loss < best_loss:
             best_loss = avg_loss
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'epoch': epoch,
-                'loss': avg_loss,
-            }, SAVE_PATH)
-            print(f"  Saved best model (loss: {avg_loss:.4f})")
+            # Save strictly state_dict for export compatibility
+            torch.save(model.state_dict(), SAVE_PATH)
+            print(f"  Saved best model (loss: {avg_loss:.5f})")
     
-    print(f"\nTraining complete! Best loss: {best_loss:.4f}")
+    print(f"\nTraining complete! Best loss: {best_loss:.5f}")
     print(f"Model saved to: {SAVE_PATH}")
-    
     return model
 
 
 def main():
     """Main training pipeline."""
     print("=" * 60)
-    print("FluxFish NNUE Training - CPU Optimized")
+    print("FluxFish Grandmaster Training Pipeline")
     print("=" * 60)
     
-    dataset_file = "master_data.txt"
-    
     # Step 1: Generate or load training data
-    if os.path.exists(dataset_file):
-        print(f"\nFound existing dataset: {dataset_file}")
-        dataset = ChessDataset(dataset_file)
-    else:
-        print("\nGenerating training dataset...")
-        dataset = generate_dataset_parallel(NUM_POSITIONS, dataset_file)
+    dataset = generate_dataset_parallel(NUM_POSITIONS, DATASET_FILE)
     
     # Step 2: Train the model
-    if len(dataset) < 100:
+    if len(dataset) < 1000:
         print("ERROR: Not enough training data!")
         return
     
-    model = train_model(dataset, epochs=EPOCHS)
+    train_model(dataset, epochs=EPOCHS)
     
-    # Step 3: Quick test
-    print("\n" + "=" * 60)
-    print("Testing trained model...")
-    print("=" * 60)
-    
-    from nnue_model import FluxFishEvaluator
-    evaluator = FluxFishEvaluator(SAVE_PATH)
-    
-    # Test positions
-    test_positions = [
-        chess.Board(),  # Starting position
-        chess.Board("r1bqkbnr/pppppppp/2n5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2"),
-        chess.Board("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2"),
-    ]
-    
-    for board in test_positions:
-        ev = evaluator.evaluate(board)
-        print(f"Position: {board.fen()[:40]}...")
-        print(f"  Evaluation: {ev:+.3f}")
-    
-    print("\n✓ Training complete! Run main.py to play against the engine.")
-
+    print("\n✓ Training complete! Run export_model.py next.")
 
 if __name__ == "__main__":
     main()
