@@ -263,8 +263,14 @@ def main():
     print("FluxFish Grandmaster Training Pipeline")
     print("=" * 60)
     
-    # Step 1: Generate or load training data
-    dataset = generate_dataset_parallel(NUM_POSITIONS, DATASET_FILE)
+    # Step 1: Load existing training data only
+    if not os.path.exists(DATASET_FILE):
+        print(f"ERROR: {DATASET_FILE} not found!")
+        print("Please ensure grandmaster_data.txt exists before training.")
+        return
+    
+    dataset = ChessDataset(DATASET_FILE)
+    print(f"Loaded {len(dataset)} positions from {DATASET_FILE}")
     
     # Step 2: Train the model
     if len(dataset) < 1000:
