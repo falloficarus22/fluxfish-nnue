@@ -141,8 +141,7 @@ class CSVChessDataset(Dataset):
                 # If a FEN is still somehow invalid, we'll just have a zero-vector (neutral)
                 # and log it.
                 count_bad += 1
-            
-            if i % 5000 == 0:
+        
             if i % 5000 == 0:
                 print(f"Processing... ({int(i/len(self.fens)*100)}%)", end='\r')
         
@@ -261,3 +260,4 @@ if __name__ == "__main__":
         sys.exit(1)
         
     train(args)
+
