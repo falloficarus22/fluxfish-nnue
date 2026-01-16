@@ -2,3 +2,5 @@
 *.json filter=lfs diff=lfs merge=lfs -text
 rl_experience.json filter=lfs diff=lfs merge=lfs -text
 positions.csv filter=lfs diff=lfs merge=lfs -text
+master_data.txt filter=lfs diff=lfs merge=lfs -text
+grandmaster_data.txt filter=lfs diff=lfs merge=lfs -text
