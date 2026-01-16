@@ -358,6 +358,7 @@ def main():
     
     # Step 1: Load existing training data only
 <<<<<<< HEAD
+<<<<<<< HEAD
     if not os.path.exists(DATASET_FILE):
         print(f"ERROR: {DATASET_FILE} not found!")
         print("Please ensure grandmaster_data.txt exists before training.")
@@ -374,6 +375,15 @@ def main():
     dataset = ChessDataset(args.data)
     print(f"Loaded {len(dataset)} positions from {args.data}")
 >>>>>>> e0d8361 (Ready or training)
+=======
+    if not os.path.exists(args.data):
+        print(f"ERROR: {args.data} not found!")
+        print("Please ensure the data file exists before training.")
+        return
+    
+    dataset = ChessDataset(args.data)
+    print(f"Loaded {len(dataset)} positions from {args.data}")
+>>>>>>> f64cee0 (Ready for training)
     
     # Step 2: Train the model
     if len(dataset) < 1000:
