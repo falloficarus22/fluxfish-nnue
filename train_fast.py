@@ -8,16 +8,17 @@ import numpy as np
 import random
 import os
 import time
+import argparse
 from multiprocessing import Pool, cpu_count
 from nnue_model import FluxFishNNUE
 
 # ============ CONFIGURATION ============
 STOCKFISH_PATH = "/usr/games/stockfish"  # Ensure this path is correct!
-BATCH_SIZE = 4096      # Efficient batch size
+BATCH_SIZE = 8192      # Larger batch size for GPU
 LEARNING_RATE = 0.001
 NUM_POSITIONS = 2500000  # 2.5 Million positions for GM strength
 EPOCHS = 35              # Train longer
-NUM_WORKERS = max(1, cpu_count()) # Use all cores
+NUM_WORKERS = min(4, cpu_count()) # Reduced workers for GPU efficiency
 SAVE_PATH = "fluxfish.nnue"
 DATASET_FILE = "grandmaster_data.txt"
 
@@ -173,27 +174,48 @@ def generate_dataset_parallel(target_positions: int, output_file: str):
     return dataset
 
 
-def train_model(dataset: ChessDataset, epochs: int = EPOCHS):
+def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = BATCH_SIZE, 
+                learning_rate: float = LEARNING_RATE, num_workers: int = NUM_WORKERS,
+                device=None, save_path: str = SAVE_PATH, verbose: bool = False):
     """Train the NNUE model on the dataset."""
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
     print(f"Training on device: {device}")
+    if device.type == 'cuda':
+        print(f"GPU: {torch.cuda.get_device_name()}")
+        print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
+        torch.backends.cudnn.deterministic = False  # Allow non-deterministic for speed
     
     model = FluxFishNNUE().to(device)
     
-    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-    criterion = nn.MSELoss()
+    # Use mixed precision training for GPU
+    scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
     
+    # Create dataloader first for scheduler
     dataloader = DataLoader(
         dataset, 
-        batch_size=BATCH_SIZE, 
+        batch_size=batch_size, 
         shuffle=True,
-        num_workers=0,  
-        pin_memory=True
+        num_workers=num_workers,  # Enable multiprocessing for data loading
+        pin_memory=True,          # Faster GPU transfers
+        persistent_workers=True,  # Keep workers alive
+        prefetch_factor=2         # Prefetch batches
     )
     
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    scheduler = optim.lr_scheduler.OneCycleLR(
+        optimizer, 
+        max_lr=learning_rate,
+        epochs=epochs,
+        steps_per_epoch=len(dataloader),
+        pct_start=0.1  # Warmup for 10% of training
+    )
+    criterion = nn.MSELoss()
+    
     print(f"\nTraining on {len(dataset)} positions for {epochs} epochs...")
-    print(f"Batch size: {BATCH_SIZE}, Learning rate: {LEARNING_RATE}")
+    print(f"Batch size: {batch_size}, Learning rate: {learning_rate}")
     
     model.train()
     best_loss = float('inf')
@@ -204,66 +226,138 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS):
         start_time = time.time()
         
         for batch_idx, (w_feat, b_feat, stm, labels) in enumerate(dataloader):
-            w_feat = w_feat.to(device)
-            b_feat = b_feat.to(device)
+            w_feat = w_feat.to(device, non_blocking=True)
+            b_feat = b_feat.to(device, non_blocking=True)
             stm = stm.to(device).squeeze(-1).bool()
-            labels = labels.to(device)
+            labels = labels.to(device, non_blocking=True)
             
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)  # More efficient than zero_grad()
             
-            # Forward pass
-            outputs = list()
-            # Simple batched forward (naive loop if model doesn't support batching yet)
-            # Assuming nnue_model is updated or we use loop:
-            # Let's use the loop in this script to be safe unless we are sure about model support
-            # Actually, standard PyTorch model should handle batches if written correctly.
-            # But earlier we saw `nnue_model.py` had scalar assumptions or loops.
-            # Let's assume user updated it or use loop for safety if not.
-            # The previous turn updated nnue_model.py to support batches, so we can try:
-            try:
-                # Optimized batch call
-                outputs = model(w_feat, b_feat, stm)
-            except:
-                # Fallback loop
-                out_list = []
-                for i in range(len(w_feat)):
-                   out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
-                outputs = torch.stack(out_list)
-
-            loss = criterion(outputs, labels)
-            loss.backward()
-            
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            # Use mixed precision if available
+            if scaler is not None:
+                with torch.cuda.amp.autocast():
+                    try:
+                        outputs = model(w_feat, b_feat, stm)
+                    except:
+                        # Fallback loop for batch compatibility
+                        out_list = []
+                        for i in range(len(w_feat)):
+                           out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
+                        outputs = torch.stack(out_list)
+                    
+                    loss = criterion(outputs, labels)
+                
+                scaler.scale(loss).backward()
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                # CPU fallback
+                try:
+                    outputs = model(w_feat, b_feat, stm)
+                except:
+                    out_list = []
+                    for i in range(len(w_feat)):
+                       out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
+                    outputs = torch.stack(out_list)
+                
+                loss = criterion(outputs, labels)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
             
             epoch_loss += loss.item()
             num_batches += 1
         
-        scheduler.step()
+        # OneCycleLR handles stepping automatically per batch
         avg_loss = epoch_loss / num_batches
         elapsed = time.time() - start_time
         
-        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, Time: {elapsed:.1f}s")
+        # Clear GPU cache periodically
+        if device.type == 'cuda' and (epoch + 1) % 5 == 0:
+            torch.cuda.empty_cache()
+        
+        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, LR: {scheduler.get_last_lr()[0]:.6f}, Time: {elapsed:.1f}s")
         
         # Save best model
         if avg_loss < best_loss:
             best_loss = avg_loss
             # Save strictly state_dict for export compatibility
-            torch.save(model.state_dict(), SAVE_PATH)
+            torch.save(model.state_dict(), save_path)
             print(f"  Saved best model (loss: {avg_loss:.5f})")
     
     print(f"\nTraining complete! Best loss: {best_loss:.5f}")
-    print(f"Model saved to: {SAVE_PATH}")
+    print(f"Model saved to: {save_path}")
     return model
+
+
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Train FluxFish NNUE model on chess positions")
+    
+    # Data arguments
+    parser.add_argument("--data", type=str, default=DATASET_FILE,
+                       help=f"Path to training data file (default: {DATASET_FILE})")
+    parser.add_argument("--save", type=str, default=SAVE_PATH,
+                       help=f"Path to save trained model (default: {SAVE_PATH})")
+    
+    # Training arguments
+    parser.add_argument("--epochs", type=int, default=EPOCHS,
+                       help=f"Number of training epochs (default: {EPOCHS})")
+    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
+                       help=f"Batch size for training (default: {BATCH_SIZE})")
+    parser.add_argument("--lr", "--learning-rate", type=float, default=LEARNING_RATE,
+                       help=f"Learning rate (default: {LEARNING_RATE})")
+    
+    # Hardware arguments
+    parser.add_argument("--workers", type=int, default=NUM_WORKERS,
+                       help=f"Number of data loading workers (default: {NUM_WORKERS})")
+    parser.add_argument("--device", type=str, choices=["cpu", "cuda", "auto"], default="auto",
+                       help="Device to train on (default: auto)")
+    
+    # Other arguments
+    parser.add_argument("--seed", type=int, default=None,
+                       help="Random seed for reproducibility")
+    parser.add_argument("--verbose", action="store_true",
+                       help="Enable verbose logging")
+    
+    return parser.parse_args()
 
 
 def main():
     """Main training pipeline."""
+    args = parse_arguments()
+    
+    # Set random seed if provided
+    if args.seed is not None:
+        torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
+        random.seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(args.seed)
+            torch.cuda.manual_seed_all(args.seed)
+        print(f"Random seed set to: {args.seed}")
+    
+    # Determine device
+    if args.device == "auto":
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    else:
+        device = torch.device(args.device)
+    
     print("=" * 60)
     print("FluxFish Grandmaster Training Pipeline")
     print("=" * 60)
+    print(f"Device: {device}")
+    print(f"Data file: {args.data}")
+    print(f"Model save path: {args.save}")
+    print(f"Epochs: {args.epochs}")
+    print(f"Batch size: {args.batch_size}")
+    print(f"Learning rate: {args.lr}")
+    print(f"Workers: {args.workers}")
     
     # Step 1: Load existing training data only
+<<<<<<< HEAD
     if not os.path.exists(DATASET_FILE):
         print(f"ERROR: {DATASET_FILE} not found!")
         print("Please ensure grandmaster_data.txt exists before training.")
@@ -271,13 +365,24 @@ def main():
     
     dataset = ChessDataset(DATASET_FILE)
     print(f"Loaded {len(dataset)} positions from {DATASET_FILE}")
+=======
+    if not os.path.exists(args.data):
+        print(f"ERROR: {args.data} not found!")
+        print("Please ensure the data file exists before training.")
+        return
+    
+    dataset = ChessDataset(args.data)
+    print(f"Loaded {len(dataset)} positions from {args.data}")
+>>>>>>> e0d8361 (Ready or training)
     
     # Step 2: Train the model
     if len(dataset) < 1000:
         print("ERROR: Not enough training data!")
         return
     
-    train_model(dataset, epochs=EPOCHS)
+    train_model(dataset, epochs=args.epochs, batch_size=args.batch_size, 
+                learning_rate=args.lr, num_workers=args.workers, 
+                device=device, save_path=args.save, verbose=args.verbose)
     
     print("\n✓ Training complete! Run export_model.py next.")
 
