@@ -210,7 +210,8 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         max_lr=learning_rate,
         epochs=epochs,
         steps_per_epoch=len(dataloader),
-        pct_start=0.1  # Warmup for 10% of training
+        pct_start=0.3,  # Warmup for 30% of training
+        anneal_strategy='cos'
     )
     criterion = nn.MSELoss(reduction = 'mean')
     
