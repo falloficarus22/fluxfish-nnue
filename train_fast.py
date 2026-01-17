@@ -181,9 +181,6 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
     print(f"Training on device: {device}")
     if device.type == 'cuda':
         print(f"GPU: {torch.cuda.get_device_name()}")
@@ -215,20 +212,9 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         steps_per_epoch=len(dataloader),
         pct_start=0.1  # Warmup for 10% of training
     )
-    criterion = nn.MSELoss(reduction = 'mean')
-    
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.OneCycleLR(
-        optimizer, 
-        max_lr=learning_rate,
-        epochs=epochs,
-        steps_per_epoch=len(dataloader),
-        pct_start=0.1  # Warmup for 10% of training
-    )
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss(reduction = 'mean'))
     
     print(f"\nTraining on {len(dataset)} positions for {epochs} epochs...")
-    print(f"Batch size: {batch_size}, Learning rate: {learning_rate}")
     print(f"Batch size: {batch_size}, Learning rate: {learning_rate}")
     
     model.train()
@@ -242,13 +228,9 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         for batch_idx, (w_feat, b_feat, stm, labels) in enumerate(dataloader):
             w_feat = w_feat.to(device, non_blocking=True)
             b_feat = b_feat.to(device, non_blocking=True)
-            w_feat = w_feat.to(device, non_blocking=True)
-            b_feat = b_feat.to(device, non_blocking=True)
             stm = stm.to(device).squeeze(-1).bool()
             labels = labels.to(device, non_blocking=True)
-            labels = labels.to(device, non_blocking=True)
             
-            optimizer.zero_grad(set_to_none=True)  # More efficient than zero_grad()
             optimizer.zero_grad(set_to_none=True)  # More efficient than zero_grad()
             
             # Use mixed precision if available
@@ -297,12 +279,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
             torch.cuda.empty_cache()
         
         print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, LR: {scheduler.get_last_lr()[0]:.6f}, Time: {elapsed:.1f}s")
-        # Clear GPU cache periodically
-        if device.type == 'cuda' and (epoch + 1) % 5 == 0:
-            torch.cuda.empty_cache()
-        
-        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, LR: {scheduler.get_last_lr()[0]:.6f}, Time: {elapsed:.1f}s")
-        
+
         # Save best model
         if avg_loss < best_loss:
             best_loss = avg_loss
@@ -368,25 +345,7 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     else:
         device = torch.device(args.device)
-    
-    args = parse_arguments()
-    
-    # Set random seed if provided
-    if args.seed is not None:
-        torch.manual_seed(args.seed)
-        np.random.seed(args.seed)
-        random.seed(args.seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(args.seed)
-            torch.cuda.manual_seed_all(args.seed)
-        print(f"Random seed set to: {args.seed}")
-    
-    # Determine device
-    if args.device == "auto":
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    else:
-        device = torch.device(args.device)
-    
+ 
     print("=" * 60)
     print("FluxFish Grandmaster Training Pipeline")
     print("=" * 60)
@@ -419,9 +378,6 @@ def main():
         print("ERROR: Not enough training data!")
         return
     
-    train_model(dataset, epochs=args.epochs, batch_size=args.batch_size, 
-                learning_rate=args.lr, num_workers=args.workers, 
-                device=device, save_path=args.save, verbose=args.verbose)
     train_model(dataset, epochs=args.epochs, batch_size=args.batch_size, 
                 learning_rate=args.lr, num_workers=args.workers, 
                 device=device, save_path=args.save, verbose=args.verbose)
