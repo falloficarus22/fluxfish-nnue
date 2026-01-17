@@ -193,7 +193,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
     # Use mixed precision training for GPU
     scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
 
-    # Create dataloader first for scheduler
+    # Create dataloader
     dataloader = DataLoader(
         dataset, 
         batch_size=batch_size,  
@@ -204,19 +204,13 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         prefetch_factor=2         # Prefetch batches
     )
     
+    # Simple optimizer with fixed learning rate - NO SCHEDULER
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.OneCycleLR(
-        optimizer, 
-        max_lr=learning_rate,
-        epochs=epochs,
-        steps_per_epoch=len(dataloader),
-        pct_start=0.3,  # Warmup for 30% of training
-        anneal_strategy='cos'
-    )
-    criterion = nn.MSELoss(reduction = 'mean')
+    
+    criterion = nn.MSELoss(reduction='mean')
     
     print(f"\nTraining on {len(dataset)} positions for {epochs} epochs...")
-    print(f"Batch size: {batch_size}, Learning rate: {learning_rate}")
+    print(f"Batch size: {batch_size}, Learning rate: {learning_rate} (FIXED - no scheduler)")
     
     model.train()
     best_loss = float('inf')
@@ -225,6 +219,9 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         epoch_loss = 0.0
         num_batches = 0
         start_time = time.time()
+        
+        # Manual learning rate adjustment (optional - you can modify these rules)
+        current_lr = learning_rate
         
         for batch_idx, (w_feat, b_feat, stm, labels) in enumerate(dataloader):
             w_feat = w_feat.to(device, non_blocking=True)
@@ -271,7 +268,6 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
             epoch_loss += loss.item()
             num_batches += 1
 
-        # OneCycleLR handles stepping automatically per batch
         avg_loss = epoch_loss / num_batches
         elapsed = time.time() - start_time
         
@@ -279,18 +275,15 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         if device.type == 'cuda' and (epoch + 1) % 5 == 0:
             torch.cuda.empty_cache()
         
-        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, LR: {scheduler.get_last_lr()[0]:.6f}, Time: {elapsed:.1f}s")
+        print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.5f}, LR: {current_lr:.6f}, Time: {elapsed:.1f}s")
 
         # Save best model
         if avg_loss < best_loss:
             best_loss = avg_loss
-            # Save strictly state_dict for export compatibility
-            torch.save(model.state_dict(), save_path)
             torch.save(model.state_dict(), save_path)
             print(f"  Saved best model (loss: {avg_loss:.5f})")
     
     print(f"\nTraining complete! Best loss: {best_loss:.5f}")
-    print(f"Model saved to: {save_path}")
     print(f"Model saved to: {save_path}")
     return model
 
@@ -350,13 +343,6 @@ def main():
     print("=" * 60)
     print("FluxFish Grandmaster Training Pipeline")
     print("=" * 60)
-    print(f"Device: {device}")
-    print(f"Data file: {args.data}")
-    print(f"Model save path: {args.save}")
-    print(f"Epochs: {args.epochs}")
-    print(f"Batch size: {args.batch_size}")
-    print(f"Learning rate: {args.lr}")
-    print(f"Workers: {args.workers}")
     print(f"Device: {device}")
     print(f"Data file: {args.data}")
     print(f"Model save path: {args.save}")
