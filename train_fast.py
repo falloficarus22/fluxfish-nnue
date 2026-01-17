@@ -197,6 +197,32 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
             model.load_state_dict(torch.load(save_path, map_location = device))
         except Exception as e:
             print(f"Could not load checkpoint: {e}. Starting from scratch.")
+    elif os.path.exists("fluxfish.bin"):
+        print(f"Found fluxfish.bin but no {save_path}. Importing weights from .bin...")
+        try:
+            with open("fluxfish.bin", 'rb') as f:
+                ft_weight = np.frombuffer(f.read(256 * 768 * 4), dtype=np.float32).reshape(256, 768)
+                ft_bias = np.frombuffer(f.read(256 * 4), dtype=np.float32)
+                model.ft.weight.data = torch.from_numpy(ft_weight).to(device)
+                model.ft.bias.data = torch.from_numpy(ft_bias).to(device)
+
+                l1_weight = np.frombuffer(f.read(32 * 512 * 4), dtype=np.float32).reshape(32, 512)
+                l1_bias = np.frombuffer(f.read(32 * 4), dtype=np.float32)
+                model.l1.weight.data = torch.from_numpy(l1_weight).to(device)
+                model.l1.bias.data = torch.from_numpy(l1_bias).to(device)
+
+                l2_weight = np.frombuffer(f.read(32 * 32 * 4), dtype=np.float32).reshape(32, 32)
+                l2_bias = np.frombuffer(f.read(32 * 4), dtype=np.float32)
+                model.l2.weight.data = torch.from_numpy(l2_weight).to(device)
+                model.l2.bias.data = torch.from_numpy(l2_bias).to(device)
+
+                l3_weight = np.frombuffer(f.read(1 * 32 * 4), dtype=np.float32).reshape(1, 32)
+                l3_bias = np.frombuffer(f.read(1 * 4), dtype=np.float32)
+                model.l3.weight.data = torch.from_numpy(l3_weight).to(device)
+                model.l3.bias.data = torch.from_numpy(l3_bias).to(device)
+            print("Successfully imported weights from fluxfish.bin.")
+        except Exception as e:
+            print(f"Could not import weights from .bin: {e}. Starting from scratch.")
     
     # Use mixed precision training for GPU
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
