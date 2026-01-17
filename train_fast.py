@@ -191,7 +191,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
     model = FluxFishNNUE().to(device)
     
     # Use mixed precision training for GPU
-    scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
+    scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
 
     # Create dataloader
     dataloader = DataLoader(
@@ -222,6 +222,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         
         # Manual learning rate adjustment (optional - you can modify these rules)
         current_lr = learning_rate
+
         
         for batch_idx, (w_feat, b_feat, stm, labels) in enumerate(dataloader):
             w_feat = w_feat.to(device, non_blocking=True)
@@ -233,7 +234,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
             
             # Use mixed precision if available
             if scaler is not None:
-                with torch.cuda.amp.autocast():
+                with torch.amp.autocast('cuda'):
                     try:
                         outputs = model(w_feat, b_feat, stm)
                     except:
