@@ -215,12 +215,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         steps_per_epoch=len(dataloader),
         pct_start=0.1  # Warmup for 10% of training
     )
-    criterion = nn.MSELoss(
-        num_workers=num_workers,  # Enable multiprocessing for data loading
-        pin_memory=True,          # Faster GPU transfers
-        persistent_workers=True,  # Keep workers alive
-        prefetch_factor=2         # Prefetch batches
-    )
+    criterion = nn.MSELoss(reduction = 'mean')
     
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.OneCycleLR(
