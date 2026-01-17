@@ -177,9 +177,6 @@ def generate_dataset_parallel(target_positions: int, output_file: str):
 def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = BATCH_SIZE, 
                 learning_rate: float = LEARNING_RATE, num_workers: int = NUM_WORKERS,
                 device=None, save_path: str = SAVE_PATH, verbose: bool = False):
-def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = BATCH_SIZE, 
-                learning_rate: float = LEARNING_RATE, num_workers: int = NUM_WORKERS,
-                device=None, save_path: str = SAVE_PATH, verbose: bool = False):
     """Train the NNUE model on the dataset."""
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -193,20 +190,12 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
         torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
         torch.backends.cudnn.deterministic = False  # Allow non-deterministic for speed
-    if device.type == 'cuda':
-        print(f"GPU: {torch.cuda.get_device_name()}")
-        print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
-        torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
-        torch.backends.cudnn.deterministic = False  # Allow non-deterministic for speed
     
     model = FluxFishNNUE().to(device)
     
     # Use mixed precision training for GPU
     scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
-    # Use mixed precision training for GPU
-    scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
-    
-    # Create dataloader first for scheduler
+
     # Create dataloader first for scheduler
     dataloader = DataLoader(
         dataset, 
@@ -301,44 +290,10 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
-            # Use mixed precision if available
-            if scaler is not None:
-                with torch.cuda.amp.autocast():
-                    try:
-                        outputs = model(w_feat, b_feat, stm)
-                    except:
-                        # Fallback loop for batch compatibility
-                        out_list = []
-                        for i in range(len(w_feat)):
-                           out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
-                        outputs = torch.stack(out_list)
-                    
-                    loss = criterion(outputs, labels)
-                
-                scaler.scale(loss).backward()
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                # CPU fallback
-                try:
-                    outputs = model(w_feat, b_feat, stm)
-                except:
-                    out_list = []
-                    for i in range(len(w_feat)):
-                       out_list.append(model(w_feat[i], b_feat[i], stm[i].item())) 
-                    outputs = torch.stack(out_list)
-                
-                loss = criterion(outputs, labels)
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optimizer.step()
             
             epoch_loss += loss.item()
             num_batches += 1
-        
-        # OneCycleLR handles stepping automatically per batch
+
         # OneCycleLR handles stepping automatically per batch
         avg_loss = epoch_loss / num_batches
         elapsed = time.time() - start_time
@@ -399,40 +354,6 @@ def parse_arguments():
                        help="Enable verbose logging")
     
     return parser.parse_args()
-
-
-def parse_arguments():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Train FluxFish NNUE model on chess positions")
-    
-    # Data arguments
-    parser.add_argument("--data", type=str, default=DATASET_FILE,
-                       help=f"Path to training data file (default: {DATASET_FILE})")
-    parser.add_argument("--save", type=str, default=SAVE_PATH,
-                       help=f"Path to save trained model (default: {SAVE_PATH})")
-    
-    # Training arguments
-    parser.add_argument("--epochs", type=int, default=EPOCHS,
-                       help=f"Number of training epochs (default: {EPOCHS})")
-    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
-                       help=f"Batch size for training (default: {BATCH_SIZE})")
-    parser.add_argument("--lr", "--learning-rate", type=float, default=LEARNING_RATE,
-                       help=f"Learning rate (default: {LEARNING_RATE})")
-    
-    # Hardware arguments
-    parser.add_argument("--workers", type=int, default=NUM_WORKERS,
-                       help=f"Number of data loading workers (default: {NUM_WORKERS})")
-    parser.add_argument("--device", type=str, choices=["cpu", "cuda", "auto"], default="auto",
-                       help="Device to train on (default: auto)")
-    
-    # Other arguments
-    parser.add_argument("--seed", type=int, default=None,
-                       help="Random seed for reproducibility")
-    parser.add_argument("--verbose", action="store_true",
-                       help="Enable verbose logging")
-    
-    return parser.parse_args()
-
 
 def main():
     """Main training pipeline."""
