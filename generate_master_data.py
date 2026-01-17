@@ -116,7 +116,7 @@ def main():
     # Check engine
     if not os.path.exists(args.engine) and "stockfish" not in args.engine: 
         # simplistic check, assume "stockfish" might be in path
-        print(f"⚠️ Warning: Engine path '{args.engine}' might be invalid.")
+        print(f"Warning: Engine path '{args.engine}' might be invalid.")
     
     # 1. Check existing data to resume
     existing_count = 0

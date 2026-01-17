@@ -189,6 +189,14 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         torch.backends.cudnn.deterministic = False  # Allow non-deterministic for speed
     
     model = FluxFishNNUE().to(device)
+
+    # Load existing model if it exists
+    if os.path.exists(save_path):
+        print(f"Loading existing model from {save_path} to resume training...")
+        try:
+            model.load_state_dict(torch.load(save_path, map_location = device))
+        except Exception as e:
+            print(f"Could not load checkpoint: {e}. Starting from scratch.")
     
     # Use mixed precision training for GPU
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
