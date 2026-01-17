@@ -199,8 +199,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
     # Create dataloader first for scheduler
     dataloader = DataLoader(
         dataset, 
-        batch_size=batch_size, 
-        batch_size=batch_size, 
+        batch_size=batch_size,  
         shuffle=True,
         num_workers=num_workers,  # Enable multiprocessing for data loading
         pin_memory=True,          # Faster GPU transfers
@@ -216,7 +215,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         steps_per_epoch=len(dataloader),
         pct_start=0.1  # Warmup for 10% of training
     )
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss(
         num_workers=num_workers,  # Enable multiprocessing for data loading
         pin_memory=True,          # Faster GPU transfers
         persistent_workers=True,  # Keep workers alive
