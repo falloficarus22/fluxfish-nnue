@@ -212,7 +212,7 @@ def train_model(dataset: ChessDataset, epochs: int = EPOCHS, batch_size: int = B
         steps_per_epoch=len(dataloader),
         pct_start=0.1  # Warmup for 10% of training
     )
-    criterion = nn.MSELoss(reduction = 'mean'))
+    criterion = nn.MSELoss(reduction = 'mean')
     
     print(f"\nTraining on {len(dataset)} positions for {epochs} epochs...")
     print(f"Batch size: {batch_size}, Learning rate: {learning_rate}")
