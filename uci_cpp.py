@@ -118,8 +118,8 @@ class FluxFishUCI:
             with open(temp_fen, 'w') as f:
                 f.write(fen)
             
-            # Call C++ engine with reduced iterations for faster response
-            iterations = 1000 if time_limit_ms < 2000 else 3000
+            # Call C++ engine with more iterations for better quality
+            iterations = 20000 if time_limit_ms < 500 else 40000
             
             cmd = [CPP_ENGINE_PATH, temp_fen, str(iterations)]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -270,15 +270,15 @@ class FluxFishUCI:
                 i += 1
         
         if movetime:
-            # Huge buffer for safety
-            limit_s = (movetime / 1000) * 0.7 
+            # Safer buffer for the wrapper logic
+            limit_s = (movetime / 1000) - 0.05 
         else:
             my_time = wtime if self.board.turn == chess.WHITE else btime
-            # Take 1/30th of remaining time
-            limit_s = (my_time / 30000)
+            # Take 1/25th of remaining time (a bit more aggressive)
+            limit_s = (my_time / 25000)
             
-        # Buffer for tactical check and thinking overhead
-        limit_s = max(0.2, limit_s - 0.3)
+        # Small buffer for tactical check
+        limit_s = max(0.1, limit_s - 0.1)
         # Never think for more than 15s to avoid Lichess disconnection
         limit_s = min(15.0, limit_s)
         

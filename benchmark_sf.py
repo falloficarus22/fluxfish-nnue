@@ -74,4 +74,4 @@ async def run_match(num_games=10, time_per_move=0.5):
     logger.info(f"Draws: {draws}")
 
 if __name__ == "__main__":
-    asyncio.run(run_match(num_games=6, time_per_move=1.0))
+    asyncio.run(run_match(num_games=5, time_per_move=1.0))

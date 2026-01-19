@@ -126,20 +126,49 @@ void uci_loop() {
     }
 }
 
+#include <fstream>
+
+std::string read_file(const std::string& path) {
+    std::ifstream f(path);
+    if (!f.is_open()) return "";
+    std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    return str;
+}
+
 int main(int argc, char* argv[]) {
     // Check if arguments provided (CLI mode)
-    if (argc >= 2) {
-         std::string arg1 = argv[1];
-         // Keep compatibility with old single-move test
-         if (arg1 != "uci") {
-             // Old CLI behavior if needed... 
-             // But actually, let's just default to UCI if "uci" 
-             // and maybe keep legacy behavior if it's a FEN file?
-             // For now, let's just force UCI loop if valid, otherwise existing behavior
-         }
+    if (argc >= 3) {
+        std::string fen_path = argv[1];
+        int iterations = std::stoi(argv[2]);
+        
+        std::string fen = read_file(fen_path);
+        if (fen.empty()) {
+            std::cerr << "Error: Could not read FEN from " << fen_path << std::endl;
+            return 1;
+        }
+
+        chess::Board board;
+        board.setFen(fen);
+        
+        NNUE nnue;
+        if (!nnue.load_weights("fluxfish.bin") && !nnue.load_weights("../fluxfish.bin")) {
+             // Continue anyway, but it will play poorly
+        }
+
+        MCTS mcts(nnue);
+        chess::Move best = mcts.search(board, iterations, 10.0f); // 10s max safe limit for CLI
+        
+        std::cout << "Best move found: " << chess::uci::moveToUci(best) << std::endl;
+        return 0;
     }
     
-    // Default to UCI loop 
+    // Check for "uci" flag for standard UCI mode
+    if (argc == 2 && std::string(argv[1]) == "uci") {
+        uci_loop();
+        return 0;
+    }
+    
+    // Default to UCI loop for interactive use
     uci_loop();
 
     return 0;
