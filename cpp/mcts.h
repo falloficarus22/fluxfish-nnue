@@ -16,6 +16,9 @@ struct MCTSNode {
     float p = 0.0f; // Prior
     bool is_expanded = false;
 
+    // Accumulators for incremental NNUE
+    Accumulator white_acc, black_acc;
+
     MCTSNode(chess::Move m = chess::Move(), MCTSNode* p_parent = nullptr, float prior = 0.0f)
         : move(m), parent(p_parent), p(prior) {}
     
@@ -30,7 +33,8 @@ public:
 private:
     NNUE& nnue;
     void select_expand_eval_backprop(chess::Board& board, MCTSNode* root);
-    std::vector<float> get_nnue_features(const chess::Board& board, chess::Color perspective);
+    float get_move_priority(const chess::Board& board, chess::Move move);
+    void update_node_accumulators(const chess::Board& board, chess::Move move, const Accumulator& old_w, const Accumulator& old_b, Accumulator& new_w, Accumulator& new_b);
 };
 
 #endif

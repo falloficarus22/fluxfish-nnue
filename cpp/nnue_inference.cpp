@@ -10,7 +10,17 @@ bool NNUE::load_weights(const std::string& path) {
     if (!f.is_open()) return false;
 
     // Load binary weights exported from Python
-    f.read((char*)ft_weight, sizeof(ft_weight));
+    // Original format in file: ft_weight[HIDDEN_SIZE][NUM_FEATURES]
+    float temp_ft[HIDDEN_SIZE][NUM_FEATURES];
+    f.read((char*)temp_ft, sizeof(temp_ft));
+    
+    // Transpose to ft_weight_flat[NUM_FEATURES][HIDDEN_SIZE] for faster incremental access
+    for (int i = 0; i < HIDDEN_SIZE; ++i) {
+        for (int j = 0; j < NUM_FEATURES; ++j) {
+            ft_weight_flat[j * HIDDEN_SIZE + i] = temp_ft[i][j];
+        }
+    }
+
     f.read((char*)ft_bias, sizeof(ft_bias));
     f.read((char*)l1_weight, sizeof(l1_weight));
     f.read((char*)l1_bias, sizeof(l1_bias));
@@ -28,75 +38,73 @@ void NNUE::clipped_relu(float* data, int size) {
     }
 }
 
-// AVX2 optimized feature transformer forward pass
-// This is the most computationally expensive part (256 * 768 multiplications)
-void NNUE::ft_forward(const std::vector<float>& features, float* output) {
-    for (int i = 0; i < HIDDEN_SIZE; ++i) {
-        __m256 sum = _mm256_setzero_ps();
-        const float* weights = ft_weight[i];
-        
-        // Process in chunks of 8 using AVX2
-        for (int j = 0; j < NUM_FEATURES; j += 8) {
-            __m256 w = _mm256_loadu_ps(&weights[j]);
-            __m256 f = _mm256_loadu_ps(&features[j]);
-            sum = _mm256_fmadd_ps(w, f, sum); // AVX2 FMA
-        }
+float NNUE::evaluate_accumulators(const Accumulator& white_acc, const Accumulator& black_acc, bool stm) {
+    // 1. Activation (Clipped ReLU 0-1)
+    alignas(32) float input_l1[HIDDEN_SIZE * 2];
+    
+    // Process white then black or vice versa
+    const float* first = stm ? white_acc.vals : black_acc.vals;
+    const float* second = stm ? black_acc.vals : white_acc.vals;
 
-        // Horizontal sum of the 8 floats in __m256
+    for (int i = 0; i < HIDDEN_SIZE; i += 8) {
+        __m256 v = _mm256_load_ps(&first[i]);
+        v = _mm256_max_ps(_mm256_setzero_ps(), _mm256_min_ps(_mm256_set1_ps(1.0f), v));
+        _mm256_store_ps(&input_l1[i], v);
+    }
+    for (int i = 0; i < HIDDEN_SIZE; i += 8) {
+        __m256 v = _mm256_load_ps(&second[i]);
+        v = _mm256_max_ps(_mm256_setzero_ps(), _mm256_min_ps(_mm256_set1_ps(1.0f), v));
+        _mm256_store_ps(&input_l1[HIDDEN_SIZE + i], v);
+    }
+
+    // 2. L1: Linear -> ClippedReLU
+    // This is 32 x 512. We can use AVX2 to compute it.
+    alignas(32) float x1[L1_SIZE];
+    for (int i = 0; i < L1_SIZE; ++i) {
+        __m256 sum = _mm256_setzero_ps();
+        const float* weight_row = l1_weight[i];
+        for (int j = 0; j < HIDDEN_SIZE * 2; j += 8) {
+            __m256 w = _mm256_loadu_ps(&weight_row[j]);
+            __m256 in = _mm256_load_ps(&input_l1[j]);
+            sum = _mm256_fmadd_ps(w, in, sum);
+        }
+        // Horizontal sum
         float temp[8];
         _mm256_storeu_ps(temp, sum);
-        float total_sum = 0;
-        for (int k = 0; k < 8; ++k) total_sum += temp[k];
-        
-        output[i] = total_sum + ft_bias[i];
-    }
-    clipped_relu(output, HIDDEN_SIZE);
-}
-
-float NNUE::evaluate(const std::vector<float>& white_features, const std::vector<float>& black_features, bool stm) {
-    float w_acc[HIDDEN_SIZE];
-    float b_acc[HIDDEN_SIZE];
-
-    ft_forward(white_features, w_acc);
-    ft_forward(black_features, b_acc);
-
-    // Concatenate according to side to move
-    float input_l1[HIDDEN_SIZE * 2];
-    if (stm) {
-        std::copy(w_acc, w_acc + HIDDEN_SIZE, input_l1);
-        std::copy(b_acc, b_acc + HIDDEN_SIZE, input_l1 + HIDDEN_SIZE);
-    } else {
-        std::copy(b_acc, b_acc + HIDDEN_SIZE, input_l1);
-        std::copy(w_acc, w_acc + HIDDEN_SIZE, input_l1 + HIDDEN_SIZE);
+        float row_sum = l1_bias[i];
+        for (int k = 0; k < 8; ++k) row_sum += temp[k];
+        x1[i] = std::max(0.0f, std::min(1.0f, row_sum));
     }
 
-    // L1: Linear -> ClippedReLU
-    float x1[L1_SIZE];
-    for (int i = 0; i < L1_SIZE; ++i) {
-        float sum = l1_bias[i];
-        for (int j = 0; j < HIDDEN_SIZE * 2; ++j) {
-            sum += l1_weight[i][j] * input_l1[j];
-        }
-        x1[i] = sum;
-    }
-    clipped_relu(x1, L1_SIZE);
-
-    // L2: Linear -> ClippedReLU
+    // 3. L2: Linear -> ClippedReLU
     float x2[L2_SIZE];
     for (int i = 0; i < L2_SIZE; ++i) {
         float sum = l2_bias[i];
         for (int j = 0; j < L1_SIZE; ++j) {
             sum += l2_weight[i][j] * x1[j];
         }
-        x2[i] = sum;
+        x2[i] = std::max(0.0f, std::min(1.0f, sum));
     }
-    clipped_relu(x2, L2_SIZE);
 
-    // L3: Linear -> Tanh
+    // 4. L3: Linear -> Tanh
     float final_val = l3_bias[0];
     for (int j = 0; j < L2_SIZE; ++j) {
         final_val += l3_weight[0][j] * x2[j];
     }
 
+    // Use a faster tanh approximation if needed, but for now std::tanh is fine.
     return std::tanh(final_val);
+}
+
+float NNUE::evaluate(const std::vector<float>& white_features, const std::vector<float>& black_features, bool stm) {
+    Accumulator w_acc, b_acc;
+    w_acc.init(ft_bias);
+    b_acc.init(ft_bias);
+
+    for (int i = 0; i < NUM_FEATURES; ++i) {
+        if (white_features[i] > 0.5f) w_acc.update(get_feature_weights(i), true);
+        if (black_features[i] > 0.5f) b_acc.update(get_feature_weights(i), true);
+    }
+
+    return evaluate_accumulators(w_acc, b_acc, stm);
 }
