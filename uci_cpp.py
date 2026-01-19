@@ -110,7 +110,7 @@ class FluxFishUCI:
         board.pop()
         return tactical_error
 
-    def call_cpp_engine(self, fen, time_limit_ms):
+    def call_cpp_engine(self, fen, time_limit_s):
         """Call the C++ engine to get a move."""
         try:
             # Create a temporary FEN file for the C++ engine
@@ -118,11 +118,14 @@ class FluxFishUCI:
             with open(temp_fen, 'w') as f:
                 f.write(fen)
             
-            # Call C++ engine with more iterations for better quality
-            iterations = 20000 if time_limit_ms < 500 else 40000
+            # Use a very high iteration count so the clock is the primary limit.
+            # 1,000,000 iterations is a safe "high" cap for most time controls (~5-10s).
+            # For longer games, we can go even higher.
+            iterations = 1000000 
             
-            cmd = [CPP_ENGINE_PATH, temp_fen, str(iterations)]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            # Use the exact time limit calculated by our time manager
+            cmd = [CPP_ENGINE_PATH, temp_fen, str(iterations), f"{time_limit_s:.3f}"]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=time_limit_s + 2.0)
             
             # Clean up temp file
             try:
@@ -149,11 +152,8 @@ class FluxFishUCI:
 
     def find_best_move(self, time_limit_s=None):
         """Find the best move using C++ engine and tactical filtering."""
-        # Convert time limit to milliseconds
-        time_limit_ms = int(time_limit_s * 1000) if time_limit_s else 2000
-        
         # Get move from C++ engine
-        best_move = self.call_cpp_engine(self.board.fen(), time_limit_ms)
+        best_move = self.call_cpp_engine(self.board.fen(), time_limit_s or 2.0)
         
         if best_move is None:
             # Fallback to first legal move if C++ engine fails
@@ -253,6 +253,7 @@ class FluxFishUCI:
     def parse_go_and_search(self, tokens):
         """Calculate time limit and search."""
         wtime = 30000; btime = 30000
+        winc = 0; binc = 0
         movetime = None
         
         i = 0
@@ -263,6 +264,12 @@ class FluxFishUCI:
             elif tokens[i] == "btime":
                 btime = int(tokens[i+1])
                 i += 2
+            elif tokens[i] == "winc":
+                winc = int(tokens[i+1])
+                i += 2
+            elif tokens[i] == "binc":
+                binc = int(tokens[i+1])
+                i += 2
             elif tokens[i] == "movetime":
                 movetime = int(tokens[i+1])
                 i += 2
@@ -270,16 +277,23 @@ class FluxFishUCI:
                 i += 1
         
         if movetime:
-            # Safer buffer for the wrapper logic
+            # Use almost the full move time, with a small safety margin
             limit_s = (movetime / 1000) - 0.05 
         else:
             my_time = wtime if self.board.turn == chess.WHITE else btime
-            # Take 1/25th of remaining time (a bit more aggressive)
-            limit_s = (my_time / 25000)
+            my_inc = winc if self.board.turn == chess.WHITE else binc
             
-        # Small buffer for tactical check
-        limit_s = max(0.1, limit_s - 0.1)
-        # Never think for more than 15s to avoid Lichess disconnection
+            # Time Management Formula:
+            # 1/20th of main time + 3/4 of the increment
+            # This is fairly standard and aggressive enough for blitz
+            limit_s = (my_time / 20000.0) + (my_inc / 1000.0) * 0.75
+            
+            # Never use more than 50% of our remaining time on one move
+            limit_s = min(limit_s, (my_time / 2000.0))
+            
+        # Small safety margin for tactical check and thinking overhead
+        limit_s = max(0.1, limit_s - 0.05)
+        # Stay safe for Lichess disconnections (max 15s)
         limit_s = min(15.0, limit_s)
         
         return self.find_best_move(limit_s)

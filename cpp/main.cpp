@@ -137,9 +137,14 @@ std::string read_file(const std::string& path) {
 
 int main(int argc, char* argv[]) {
     // Check if arguments provided (CLI mode)
+    // Usage: fluxfish_cpp [fen_path] [iterations] [optional: time_limit_s]
     if (argc >= 3) {
         std::string fen_path = argv[1];
         int iterations = std::stoi(argv[2]);
+        float time_limit = 10.0f; // Default
+        if (argc >= 4) {
+            time_limit = std::stof(argv[3]);
+        }
         
         std::string fen = read_file(fen_path);
         if (fen.empty()) {
@@ -156,7 +161,7 @@ int main(int argc, char* argv[]) {
         }
 
         MCTS mcts(nnue);
-        chess::Move best = mcts.search(board, iterations, 10.0f); // 10s max safe limit for CLI
+        chess::Move best = mcts.search(board, iterations, time_limit);
         
         std::cout << "Best move found: " << chess::uci::moveToUci(best) << std::endl;
         return 0;
