@@ -33,6 +33,15 @@ std::vector<float> MCTS::get_nnue_features(const chess::Board& board, chess::Col
     return features;
 }
 
+#include <unordered_map>
+
+// Simple evaluation cache
+struct CacheEntry {
+    float v;
+    bool valid = false;
+};
+static std::unordered_map<uint64_t, CacheEntry> eval_cache;
+
 void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
     MCTSNode* node = root;
     std::vector<MCTSNode*> path;
@@ -43,13 +52,16 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
         float best_score = -1e9f;
         MCTSNode* best_child = nullptr;
 
-        float cpuct = 1.5f;
-        float sqrt_n = std::sqrt((float)node->n);
+        float cpuct = 1.4f; // Slightly more focused search
+        float sqrt_n = std::sqrt((float)node->n + 1e-6f);
 
         for (auto& child_ptr : node->children) {
             MCTSNode* child = child_ptr.get();
+            
+            // UCB1 formula
+            float q = -child->value(); // Value from our perspective
             float u = cpuct * child->p * sqrt_n / (1.0f + child->n);
-            float score = (-child->value()) + u;
+            float score = q + u;
 
             if (score > best_score) {
                 best_score = score;
@@ -69,35 +81,52 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
     
     if (reason == chess::GameResultReason::NONE) {
         if (!node->is_expanded) {
-            // Evaluate with NNUE
-            auto w_feat = get_nnue_features(board, chess::Color::WHITE);
-            auto b_feat = get_nnue_features(board, chess::Color::BLACK);
-            v = nnue.evaluate(w_feat, b_feat, board.sideToMove() == chess::Color::WHITE);
+            // Check cache first
+            uint64_t hash = board.hash();
+            if (eval_cache.count(hash)) {
+                v = eval_cache[hash].v;
+            } else {
+                // Evaluate with NNUE
+                auto w_feat = get_nnue_features(board, chess::Color::WHITE);
+                auto b_feat = get_nnue_features(board, chess::Color::BLACK);
+                v = nnue.evaluate(w_feat, b_feat, board.sideToMove() == chess::Color::WHITE);
+                
+                // Store in cache
+                eval_cache[hash] = {v, true};
+                if (eval_cache.size() > 100000) eval_cache.clear(); // Simple LRU-ish
+            }
 
             // Expand
             chess::Movelist moves;
             chess::movegen::legalmoves(moves, board);
             
-            for (const auto& m : moves) {
-                float p = 1.0f / moves.size();
-                node->children.push_back(std::make_unique<MCTSNode>(m, node, p));
+            if (moves.empty()) {
+                v = 0.0f; // Stalemate
+            } else {
+                for (const auto& m : moves) {
+                    float p = 1.0f / moves.size();
+                    node->children.push_back(std::make_unique<MCTSNode>(m, node, p));
+                }
             }
             node->is_expanded = true;
         } else {
-            v = 0.0f; 
+            v = node->value(); 
         }
     } else {
         // Game Over Terminal Evaluation
         if (result == chess::GameResult::LOSE) {
-            v = -1.0f; // Current player loses (Score relative to the player who just moved)
+            v = -1.0f; // Loss is definitively -1.0
+        } else if (result == chess::GameResult::WIN) {
+            v = 1.0f;
         } else {
-            v = 0.0f; // Draw
+            // Draw Aversion / Contempt
+            // Penalize draws slightly to prefer playing for a win
+            v = -0.05f; 
         }
     }
 
     // 3. Backpropagation
-    // v is the value for the player to move at 'board' (leaf)
-    // We need to backpropagate it up the tree, flipping signs
+    // Flipping signs as we go up
     for (int i = path.size() - 1; i >= 0; --i) {
         path[i]->n++;
         path[i]->w += v;
@@ -106,6 +135,9 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
 }
 
 chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s) {
+    // Clear cache for new search or keep it? Keeping it is better for iterations.
+    // eval_cache.clear(); 
+
     MCTSNode root;
     
     // Initial expansion
@@ -121,7 +153,8 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
     auto start_time = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < iterations; ++i) {
-        if (time_limit_s > 0 && (i & 63) == 0) {
+        // More frequent time checks if iterations are high
+        if ((i & 127) == 0) {
             auto now = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> elapsed = now - start_time;
             if (elapsed.count() > time_limit_s) break;
@@ -131,6 +164,7 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
         select_expand_eval_backprop(sim_board, &root);
     }
 
+    // Logging bestmove info
     int max_n = -1;
     chess::Move best_move;
     for (auto& child : root.children) {
@@ -138,6 +172,11 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
             max_n = child->n;
             best_move = child->move;
         }
+    }
+
+    // Log search info for debugging
+    if (root.n > 0) {
+        std::cout << "info string nodes " << root.n << " score cp " << (int)(-root.children[0]->value() * 400) << std::endl;
     }
 
     return best_move;
