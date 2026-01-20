@@ -18,6 +18,7 @@ struct MCTSNode {
 
     // Accumulators for incremental NNUE
     Accumulator white_acc, black_acc;
+    bool acc_initialized = false;
 
     MCTSNode(chess::Move m = chess::Move(), MCTSNode* p_parent = nullptr, float prior = 0.0f)
         : move(m), parent(p_parent), p(prior) {}

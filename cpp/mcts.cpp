@@ -119,6 +119,13 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
         }
 
         if (!best_child) break;
+
+        // Lazy compute accumulator for the selected child
+        if (!best_child->acc_initialized) {
+            update_node_accumulators(board, best_child->move, node->white_acc, node->black_acc, best_child->white_acc, best_child->black_acc);
+            best_child->acc_initialized = true;
+        }
+
         board.makeMove(best_child->move);
         node = best_child;
         path.push_back(node);
@@ -126,50 +133,49 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
 
     // 2. Expansion & Evaluation
     float v = 0.0f;
-    auto [reason, result] = board.isGameOver();
     
-    if (reason == chess::GameResultReason::NONE) {
-        if (!node->is_expanded) {
+    if (!node->is_expanded) {
+        // Generate moves once
+        chess::Movelist moves;
+        chess::movegen::legalmoves(moves, board);
+        
+        if (moves.empty()) {
+            // Game Over
+            if (board.inCheck()) {
+                v = -1.0f; // Checkmate
+            } else {
+                v = -0.02f; // Stalemate / Draw contempt
+            }
+        } else {
+            // Check cache
             uint64_t hash = board.hash();
             if (eval_cache.count(hash)) {
                 v = eval_cache[hash].v;
             } else {
+                // Root is always initialized, others initialized during selection
                 v = nnue.evaluate_accumulators(node->white_acc, node->black_acc, board.sideToMove() == chess::Color::WHITE);
                 eval_cache[hash] = {v};
                 if (eval_cache.size() > 200000) eval_cache.clear();
             }
 
-            // Expand
-            chess::Movelist moves;
-            chess::movegen::legalmoves(moves, board);
-            
-            if (moves.empty()) {
-                v = 0.0f; // Stalemate
-            } else {
-                float total_priority = 0.0f;
-                std::vector<float> priorities;
-                for (const auto& m : moves) {
-                    float prio = get_move_priority(board, m);
-                    priorities.push_back(prio);
-                    total_priority += prio;
-                }
-
-                for (size_t j = 0; j < (size_t)moves.size(); ++j) {
-                    float p = priorities[j] / total_priority;
-                    auto child = std::make_unique<MCTSNode>(moves[j], node, p);
-                    // Incremental update for child
-                    update_node_accumulators(board, moves[j], node->white_acc, node->black_acc, child->white_acc, child->black_acc);
-                    node->children.push_back(std::move(child));
-                }
+            // Expand - Minimal work here
+            float total_priority = 0.0f;
+            std::vector<float> priorities;
+            for (const auto& m : moves) {
+                float prio = get_move_priority(board, m);
+                priorities.push_back(prio);
+                total_priority += prio;
             }
-            node->is_expanded = true;
-        } else {
-            v = node->value(); 
+
+            for (size_t j = 0; j < (size_t)moves.size(); ++j) {
+                float p = priorities[j] / total_priority;
+                // No accumulator update here! (Lazy Expansion)
+                node->children.push_back(std::make_unique<MCTSNode>(moves[j], node, p));
+            }
         }
+        node->is_expanded = true;
     } else {
-        if (result == chess::GameResult::LOSE) v = -1.0f;
-        else if (result == chess::GameResult::WIN) v = 1.0f;
-        else v = -0.02f; // Slight contempt for draws
+        v = node->value();
     }
 
     // 3. Backpropagation & Unmake
@@ -188,7 +194,8 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
     root.white_acc.init(nnue.get_ft_bias());
     root.black_acc.init(nnue.get_ft_bias());
     for (int sq = 0; sq < 64; ++sq) {
-        chess::Piece p = board.at<chess::Piece>(sq);
+        chess::Square square = chess::Square(sq);
+        chess::Piece p = board.at<chess::Piece>(square);
         if (p != chess::Piece::NONE) {
             int pt = (int)p.type();
             int pc = (int)p.color();
@@ -196,6 +203,7 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
             root.black_acc.update(nnue.get_feature_weights(get_feature_index(sq, pt, pc, (int)chess::Color::BLACK)), true);
         }
     }
+    root.acc_initialized = true;
 
     // Initial expansion
     chess::Movelist moves;
@@ -212,9 +220,7 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
 
     for (size_t i = 0; i < (size_t)moves.size(); ++i) {
         float p = priorities[i] / total_priority;
-        auto child = std::make_unique<MCTSNode>(moves[i], &root, p);
-        update_node_accumulators(board, moves[i], root.white_acc, root.black_acc, child->white_acc, child->black_acc);
-        root.children.push_back(std::move(child));
+        root.children.push_back(std::make_unique<MCTSNode>(moves[i], &root, p));
     }
     root.is_expanded = true;
 
