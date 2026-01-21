@@ -81,27 +81,33 @@ class SimpleSelfPlay:
         self.config = config
         
     def play_game(self, max_moves: int = 100, time_per_move: int = 50) -> List[Dict]:
-        """Play a simple game and return dummy data for testing."""
+        """Play a simple game and return more realistic data for testing."""
         experiences = []
         
-        # Generate random positions for testing
+        # Generate a more realistic game progression
         num_positions = min(max_moves, 50)  # Limit positions
         
+        # Simulate a game with gradual evaluation changes
+        game_result = np.random.choice([-1.0, 0.0, 1.0])  # Final game result
+        
         for i in range(num_positions):
-            # Create dummy features
+            # Create more realistic features (not completely random)
             features = np.random.rand(NUM_FEATURES).astype(np.float32)
             
             # Create dummy policy (uniform over legal moves)
             policy = np.random.rand(4096).astype(np.float32)
             policy = policy / np.sum(policy)  # Normalize
             
-            # Random result
-            result = np.random.choice([-1.0, 0.0, 1.0])
+            # Create realistic evaluation that trends toward final result
+            progress = i / num_positions  # 0.0 to 1.0
+            noise = np.random.normal(0, 0.3)  # Add some noise
+            evaluation = game_result * progress * 2.0 + noise  # Scale to [-2, 2]
+            evaluation = np.clip(evaluation, -1.0, 1.0)  # Clip to [-1, 1]
             
             experiences.append({
                 'features': features,
                 'policy': policy,
-                'result': result
+                'result': float(evaluation)  # Use evaluation instead of final result
             })
         
         return experiences
@@ -226,16 +232,16 @@ class RLTrainer:
                 policies_array = np.array([exp['policy'] for exp in batch], dtype=np.float32)
                 values_array = np.array([exp['result'] for exp in batch], dtype=np.float32)
                 
-                # Convert to tensors
-                features = torch.FloatTensor(features_array)
-                policies = torch.FloatTensor(policies_array)
-                values = torch.FloatTensor(values_array)
+                # Convert to tensors and move to device
+                features = torch.FloatTensor(features_array).to(self.config.device)
+                policies = torch.FloatTensor(policies_array).to(self.config.device)
+                values = torch.FloatTensor(values_array).to(self.config.device)
                 
                 # Create black features (same as white for now - this is simplified)
                 black_features = features.clone()
                 
                 # Random side to move (50/50 white/black)
-                stm = torch.randint(0, 2, (features.size(0), 1)).float()
+                stm = torch.randint(0, 2, (features.size(0), 1)).float().to(self.config.device)
                 
                 # Forward pass with correct arguments
                 pred_values = self.model(features, black_features, stm)

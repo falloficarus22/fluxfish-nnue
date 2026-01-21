@@ -28,29 +28,29 @@ def export_nnue(model, export_path):
     with open(export_path, 'wb') as f:
         # 1. Feature Transformer (self.ft)
         # Weights: (256, 768), Bias: (256,)
-        ft_weight = model_obj.ft.weight.data.numpy()  # [Hidden, Input]
-        ft_bias = model_obj.ft.bias.data.numpy()      # [Hidden]
+        ft_weight = model_obj.ft.weight.data.cpu().numpy()  # Move to CPU before numpy
+        ft_bias = model_obj.ft.bias.data.cpu().numpy()      # Move to CPU before numpy
         f.write(ft_weight.astype(np.float32).tobytes())
         f.write(ft_bias.astype(np.float32).tobytes())
 
         # 2. Layer 1 (self.l1)
         # Weights: (32, 512), Bias: (32,)
-        l1_weight = model_obj.l1.weight.data.numpy()
-        l1_bias = model_obj.l1.bias.data.numpy()
+        l1_weight = model_obj.l1.weight.data.cpu().numpy()
+        l1_bias = model_obj.l1.bias.data.cpu().numpy()
         f.write(l1_weight.astype(np.float32).tobytes())
         f.write(l1_bias.astype(np.float32).tobytes())
 
         # 3. Layer 2 (self.l2)
         # Weights: (32, 32), Bias: (32,)
-        l2_weight = model_obj.l2.weight.data.numpy()
-        l2_bias = model_obj.l2.bias.data.numpy()
+        l2_weight = model_obj.l2.weight.data.cpu().numpy()
+        l2_bias = model_obj.l2.bias.data.cpu().numpy()
         f.write(l2_weight.astype(np.float32).tobytes())
         f.write(l2_bias.astype(np.float32).tobytes())
 
         # 4. Layer 3 (self.l3)
         # Weights: (1, 32), Bias: (1,)
-        l3_weight = model_obj.l3.weight.data.numpy()
-        l3_bias = model_obj.l3.bias.data.numpy()
+        l3_weight = model_obj.l3.weight.data.cpu().numpy()
+        l3_bias = model_obj.l3.bias.data.cpu().numpy()
         f.write(l3_weight.astype(np.float32).tobytes())
         f.write(l3_bias.astype(np.float32).tobytes())
 
