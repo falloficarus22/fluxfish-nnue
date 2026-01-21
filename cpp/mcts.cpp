@@ -1,4 +1,5 @@
 #include "mcts.h"
+#include "tablebase.h"
 #include <cmath>
 #include <algorithm>
 #include <chrono>
@@ -133,6 +134,7 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
 
     // 2. Expansion & Evaluation
     float v = 0.0f;
+    bool tb_hit = false;
     
     if (!node->is_expanded) {
         // Generate moves once
@@ -147,33 +149,65 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
                 v = -0.02f; // Stalemate / Draw contempt
             }
         } else {
-            // Check cache
-            uint64_t hash = board.hash();
-            if (eval_cache.count(hash)) {
-                v = eval_cache[hash].v;
-            } else {
-                // Root is always initialized, others initialized during selection
-                v = nnue.evaluate_accumulators(node->white_acc, node->black_acc, board.sideToMove() == chess::Color::WHITE);
-                eval_cache[hash] = {v};
-                if (eval_cache.size() > 200000) eval_cache.clear();
+            // Try tablebase probe first
+            if (tablebase != nullptr && tablebase->can_probe(board)) {
+                int tb_result = tablebase->probe_wdl(board);
+                if (tb_result != TB_RESULT_FAILED) {
+                    tb_hit = true;
+                    // Convert TB result to evaluation
+                    // TB_WIN = 2, TB_CURSED_WIN = 1, TB_DRAW = 0, TB_BLESSED_LOSS = -1, TB_LOSS = -2
+                    switch (tb_result) {
+                        case TB_WIN:
+                        case TB_CURSED_WIN:
+                            v = 0.95f; // Slight less than mate to prefer faster wins
+                            break;
+                        case TB_DRAW:
+                            v = -0.02f; // Small contempt
+                            break;
+                        case TB_BLESSED_LOSS:
+                        case TB_LOSS:
+                            v = -0.95f; // Slight less than mate
+                            break;
+                        default:
+                            tb_hit = false;
+                    }
+                    
+                    if (tb_hit) {
+                        // Don't expand tablebase positions - they're terminal
+                        node->is_expanded = true;
+                    }
+                }
             }
+            
+            if (!tb_hit) {
+                // Check cache
+                uint64_t hash = board.hash();
+                if (eval_cache.count(hash)) {
+                    v = eval_cache[hash].v;
+                } else {
+                    // Root is always initialized, others initialized during selection
+                    v = nnue.evaluate_accumulators(node->white_acc, node->black_acc, board.sideToMove() == chess::Color::WHITE);
+                    eval_cache[hash] = {v};
+                    if (eval_cache.size() > 200000) eval_cache.clear();
+                }
 
-            // Expand - Minimal work here
-            float total_priority = 0.0f;
-            std::vector<float> priorities;
-            for (const auto& m : moves) {
-                float prio = get_move_priority(board, m);
-                priorities.push_back(prio);
-                total_priority += prio;
-            }
+                // Expand - Minimal work here
+                float total_priority = 0.0f;
+                std::vector<float> priorities;
+                for (const auto& m : moves) {
+                    float prio = get_move_priority(board, m);
+                    priorities.push_back(prio);
+                    total_priority += prio;
+                }
 
-            for (size_t j = 0; j < (size_t)moves.size(); ++j) {
-                float p = priorities[j] / total_priority;
-                // No accumulator update here! (Lazy Expansion)
-                node->children.push_back(std::make_unique<MCTSNode>(moves[j], node, p));
+                for (size_t j = 0; j < (size_t)moves.size(); ++j) {
+                    float p = priorities[j] / total_priority;
+                    // No accumulator update here! (Lazy Expansion)
+                    node->children.push_back(std::make_unique<MCTSNode>(moves[j], node, p));
+                }
+                node->is_expanded = true;
             }
         }
-        node->is_expanded = true;
     } else {
         v = node->value();
     }

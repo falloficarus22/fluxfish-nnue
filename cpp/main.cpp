@@ -8,6 +8,7 @@
 #include "chess.hpp"
 #include "nnue_inference.h"
 #include "mcts.h"
+#include "tablebase.h"
 
 // Simple time management
 struct SearchParams {
@@ -32,7 +33,18 @@ void uci_loop() {
         std::cout << "info string Failed to load NNUE weights! Engine will plain random moves/crash." << std::endl;
     }
     
-    MCTS mcts(nnue);
+    // Try to initialize tablebases
+    Tablebase tb;
+    bool tb_enabled = false;
+    if (tb.init("../syzygy")) {
+        tb_enabled = true;
+    } else if (tb.init("syzygy")) {
+        tb_enabled = true;
+    } else if (tb.init("/root/syzygy")) {
+        tb_enabled = true;
+    }
+    
+    MCTS mcts(nnue, tb_enabled ? &tb : nullptr);
     
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -160,7 +172,7 @@ int main(int argc, char* argv[]) {
              // Continue anyway, but it will play poorly
         }
 
-        MCTS mcts(nnue);
+        MCTS mcts(nnue, nullptr); // No TB for benchmarking
         chess::Move best = mcts.search(board, iterations, time_limit);
         
         std::cout << "Best move found: " << chess::uci::moveToUci(best) << std::endl;
