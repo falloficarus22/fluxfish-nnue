@@ -31,24 +31,24 @@ class RLConfig:
     """Configuration for C++ backend RL training."""
     
     # Training parameters
-    batch_size: int = 64  # Reduced for stability
+    batch_size: int = 8192  # Reduced for stability
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
-    epochs_per_iteration: int = 2  # Reduced for stability
-    max_iterations: int = 50  # Reduced for testing
+    epochs_per_iteration: int = 5  # Reduced for stability
+    max_iterations: int = 500  # Reduced for testing
     
     # Self-play parameters
-    games_per_iteration: int = 4  # Reduced for stability
-    max_moves_per_game: int = 100  # Reduced for speed
-    time_per_move_ms: int = 50
+    games_per_iteration: int = 16  # Reduced for stability
+    max_moves_per_game: int = 200  # Reduced for speed
+    time_per_move_ms: int = 100
     
     # Experience replay
-    replay_buffer_size: int = 10000  # Reduced for memory
-    min_buffer_size: int = 500  # Reduced for faster training
+    replay_buffer_size: int = 100000  # Reduced for memory
+    min_buffer_size: int = 5000  # Reduced for faster training
     
     # Optimization
-    num_workers: int = 1  # Disabled multiprocessing for now
-    device: str = "cpu"  # Force CPU to avoid CUDA issues
+    num_workers: int = 2  # Disabled multiprocessing for now
+    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     # Paths
     cpp_engine_path: str = "./cpp/fluxfish_cpp"
@@ -221,18 +221,28 @@ class RLTrainer:
                 if not batch:
                     continue
                 
-                # Prepare batch data
-                features = torch.FloatTensor([exp['features'] for exp in batch])
-                policies = torch.FloatTensor([exp['policy'] for exp in batch])
-                values = torch.FloatTensor([exp['result'] for exp in batch])
+                # Prepare batch data - convert to numpy arrays first for efficiency
+                features_array = np.array([exp['features'] for exp in batch], dtype=np.float32)
+                policies_array = np.array([exp['policy'] for exp in batch], dtype=np.float32)
+                values_array = np.array([exp['result'] for exp in batch], dtype=np.float32)
                 
-                # Forward pass
-                pred_policies, pred_values = self.model(features)
+                # Convert to tensors
+                features = torch.FloatTensor(features_array)
+                policies = torch.FloatTensor(policies_array)
+                values = torch.FloatTensor(values_array)
                 
-                # Calculate losses
-                policy_loss = nn.CrossEntropyLoss()(pred_policies, policies)
+                # Create black features (same as white for now - this is simplified)
+                black_features = features.clone()
+                
+                # Random side to move (50/50 white/black)
+                stm = torch.randint(0, 2, (features.size(0), 1)).float()
+                
+                # Forward pass with correct arguments
+                pred_values = self.model(features, black_features, stm)
+                
+                # Calculate losses (model only outputs evaluation, not policy)
                 value_loss = nn.MSELoss()(pred_values.squeeze(), values)
-                loss = policy_loss + value_loss
+                loss = value_loss  # Only value loss for now
                 
                 # Backward pass
                 self.optimizer.zero_grad()
