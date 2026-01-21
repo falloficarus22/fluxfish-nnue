@@ -18,26 +18,27 @@ static const int PIECE_VALS[] = { 100, 320, 330, 500, 900, 0 };
 float MCTS::get_move_priority(const chess::Board& board, chess::Move move) {
     float score = 1.0f;
     
-    // 1. Capture (MVV-LVA)
+    // 1. Capture (MVV-LVA) - optimized
     chess::Piece captured = board.at<chess::Piece>(move.to());
     if (captured != chess::Piece::NONE) {
         chess::Piece attacker = board.at<chess::Piece>(move.from());
-        score += 10.0f + (PIECE_VALS[(int)captured.type()] / 10.0f) - (PIECE_VALS[(int)attacker.type()] / 100.0f);
+        score += 10.0f + (PIECE_VALS[(int)captured.type()] - PIECE_VALS[(int)attacker.type()] / 10.0f) / 10.0f;
     }
     
-    // 2. Promotion
+    // 2. Promotion - most important after captures
     if (move.typeOf() == chess::Move::PROMOTION) {
         score += 8.0f;
     }
     
-    // 3. Check
-    if (board.givesCheck(move) != chess::CheckType::NO_CHECK) {
+    // 3. Check - expensive check, only if not capture/promotion
+    else if (board.givesCheck(move) != chess::CheckType::NO_CHECK) {
         score += 2.0f;
     }
 
-    // 4. Center control
+    // 4. Center control - cheap check
     int to_sq = move.to().index();
-    if (to_sq == 27 || to_sq == 28 || to_sq == 35 || to_sq == 36) { // d4, e4, d5, e5
+    // Use bit operations for faster center detection
+    if ((to_sq >= 27 && to_sq <= 36) && (to_sq % 8 >= 3 && to_sq % 8 <= 4)) {
         score += 0.5f;
     }
 
@@ -104,7 +105,7 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
         float best_score = -1e9f;
         MCTSNode* best_child = nullptr;
 
-        float cpuct = 1.6f; 
+        float cpuct = 1.25f; 
         float sqrt_n = std::sqrt((float)node->n + 1e-6f);
 
         for (auto& child_ptr : node->children) {
@@ -180,20 +181,27 @@ void MCTS::select_expand_eval_backprop(chess::Board& board, MCTSNode* root) {
             }
             
             if (!tb_hit) {
-                // Check cache
+                // Check cache - optimized
                 uint64_t hash = board.hash();
-                if (eval_cache.count(hash)) {
-                    v = eval_cache[hash].v;
+                auto cache_it = eval_cache.find(hash);
+                if (cache_it != eval_cache.end()) {
+                    v = cache_it->second.v;
                 } else {
                     // Root is always initialized, others initialized during selection
                     v = nnue.evaluate_accumulators(node->white_acc, node->black_acc, board.sideToMove() == chess::Color::WHITE);
                     eval_cache[hash] = {v};
-                    if (eval_cache.size() > 200000) eval_cache.clear();
+                    if (eval_cache.size() > 100000) { // Smaller cache for better locality
+                        eval_cache.clear();
+                    }
                 }
 
                 // Expand - Minimal work here
                 float total_priority = 0.0f;
+                // Reserve space to avoid reallocations
+                node->children.reserve(moves.size());
                 std::vector<float> priorities;
+                priorities.reserve(moves.size());
+                
                 for (const auto& m : moves) {
                     float prio = get_move_priority(board, m);
                     priorities.push_back(prio);
@@ -260,7 +268,8 @@ chess::Move MCTS::search(chess::Board& board, int iterations, float time_limit_s
 
     auto start_time = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iterations; ++i) {
-        if ((i & 255) == 0 && time_limit_s > 0) {
+        // Check time less frequently for better performance
+        if ((i & 1023) == 0 && time_limit_s > 0) {
             auto now = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> elapsed = now - start_time;
             if (elapsed.count() > time_limit_s) break;

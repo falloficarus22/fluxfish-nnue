@@ -117,17 +117,18 @@ void uci_loop() {
             int iterations = 2000000; // Limit iterations if needed
             
             if (params.movetime > 0) {
-                time_limit_s = (params.movetime / 1000.0f) * 0.95f; 
+                // More accurate time management - use 98% of allocated time
+                time_limit_s = (params.movetime / 1000.0f) * 0.98f; 
             } else if (params.wtime > 0) {
-                // Simple 1/30th time management
+                // Improved time management - more aggressive for better performance
                 int my_time = (board.sideToMove() == chess::Color::WHITE) ? params.wtime : params.btime;
                 int my_inc = (board.sideToMove() == chess::Color::WHITE) ? params.winc : params.binc;
-                // Use slightly more efficient time mgmt: time / 20 + inc
-                time_limit_s = (my_time / 20.0f + my_inc * 0.5f) / 1000.0f;
+                // Use 1/15th of time + full increment for better time utilization
+                time_limit_s = (my_time / 15.0f + my_inc) / 1000.0f;
             }
             
-            // Buffer to avoid loss on time
-            time_limit_s = std::max(0.01f, time_limit_s - 0.05f); 
+            // Smaller buffer to avoid loss on time but use more time
+            time_limit_s = std::max(0.01f, time_limit_s - 0.02f); 
             
             chess::Move best = mcts.search(board, iterations, time_limit_s);
             std::cout << "bestmove " << chess::uci::moveToUci(best) << std::endl;
